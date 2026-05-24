@@ -15,7 +15,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '../lib/supabase.js'
+import { useAuthStore } from '@/stores/auth.js'
 
 const router = useRouter()
 
@@ -24,20 +24,19 @@ const password = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
 
+const auth = useAuthStore()
+
 const handleLogin = async () => {
   loading.value = true
   errorMsg.value = ''
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  })
-
-  if (error) {
-    errorMsg.value = error.message
-    loading.value = false
-  } else {
+  try {
+    await auth.login(email.value, password.value)
     router.push('/Home')
+  } catch (error) {
+    errorMsg.value = error.message
+  } finally {
+    loading.value = false
   }
 }
 </script>
