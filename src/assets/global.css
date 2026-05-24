@@ -35,7 +35,11 @@ a:hover {
   flex-direction: column;
 }
 
+/* --- NAVBAR (PrimeVue Menubar) --- */
+
+/* Barra superior de navegació: ocupa tot l'ample, fons fosc */
 .p-menubar {
+  width: 100%;
   background: #111118;
   border-bottom: 1px solid #2a2a35;
   padding: 1rem 2rem;
@@ -45,20 +49,28 @@ a:hover {
   gap: 2.5rem;
 }
 
+/* Llista d'items centrada horitzontalment */
 .p-menubar-root-list {
   display: flex;
   list-style: none;
-  gap: 0.25rem;
+  justify-content: center;
+  flex: 1;
+  margin: 0;
+  padding: 0;
 }
 
+/* Cada item amb espai lateral entre ells */
 .p-menubar-item {
   list-style: none;
+  margin: 0 0.75rem;
 }
 
+/* Contenidor intern del botó (flex per alinear icona + text) */
 .p-menubar-item-content {
   display: flex;
 }
 
+/* Enllaç/botó de cada item: estil fosc amb hover */
 .p-menubar-item-link {
   display: flex;
   align-items: center;
@@ -76,11 +88,63 @@ a:hover {
   letter-spacing: 0.02em;
 }
 
+/* Hover: text blanc + fons més clar */
 .p-menubar-item-link:hover {
   color: #ffffff;
   background: #1e1e28;
 }
 
+/* Icona dins del botó */
 .p-menubar-item-link .pi {
   font-size: 1.15rem;
+}
+
+/* --- INPUTS --- */
+
+input,
+textarea,
+select {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  background: #111118;
+  border: 1px solid #2a2a35;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #666;
+}
+
+/* --- BUTTONS --- */
+
+button,
+.btn {
+  padding: 0.75rem 2rem;
+  background: #c9a84c;
+  color: #0a0a0f;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover,
+.btn:hover {
+  background: #e0c66a;
 }

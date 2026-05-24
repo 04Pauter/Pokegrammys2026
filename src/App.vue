@@ -7,6 +7,7 @@ const router = useRouter()
 const items = ref([
   { label: 'Login', icon: 'pi pi-unlock', command: () => router.push('/') },
   { label: 'Home', icon: 'pi pi-user', command: () => router.push('/Home') },
+  { label: 'Registro', icon: 'pi pi-user', command: () => router.push('/Register') },
   { label: 'Pokecuento', icon: 'pi pi-youtube', command: () => router.push('/Pokecuento') }
 ])
 </script>

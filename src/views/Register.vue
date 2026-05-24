@@ -1,12 +1,14 @@
 <template>
-  <div class="login-view">
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin" class="login-form">
+  <div class="register-view">
+    <h1>Registre</h1>
+    <form @submit.prevent="handleRegister" class="register-form">
       <input v-model="email" placeholder="Email" type="email" required />
-      <input v-model="password" placeholder="Contraseña" type="password" required />
+      <input v-model="password" placeholder="Contraseña" type="password" required minlength="6" />
+      <input v-model="confirmPassword" placeholder="Repetir contraseña" type="password" required minlength="6" />
       <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
+      <p v-if="successMsg" class="success">{{ successMsg }}</p>
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Entrant...' : 'Entrar' }}
+        {{ loading ? 'Creant compte...' : 'Crear compte' }}
       </button>
     </form>
   </div>
@@ -14,21 +16,27 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase.js'
-
-const router = useRouter()
 
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
+const successMsg = ref('')
 
-const handleLogin = async () => {
-  loading.value = true
+const handleRegister = async () => {
   errorMsg.value = ''
+  successMsg.value = ''
 
-  const { error } = await supabase.auth.signInWithPassword({
+  if (password.value !== confirmPassword.value) {
+    errorMsg.value = 'Les contrasenyes no coincideixen'
+    return
+  }
+
+  loading.value = true
+
+  const { error } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
   })
@@ -37,13 +45,14 @@ const handleLogin = async () => {
     errorMsg.value = error.message
     loading.value = false
   } else {
-    router.push('/Home')
+    successMsg.value = 'Compte creat! Revisa el teu email per confirmar-lo.'
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
-.login-view {
+.register-view {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,14 +63,14 @@ const handleLogin = async () => {
   padding: 2rem;
 }
 
-.login-view h1 {
+.register-view h1 {
   font-size: 2.5rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,6 +80,12 @@ const handleLogin = async () => {
 
 .error {
   color: #e74c3c;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.success {
+  color: #2ecc71;
   font-size: 0.875rem;
   margin: 0;
 }
