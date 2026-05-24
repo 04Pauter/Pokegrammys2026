@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from '@/stores/auth.js'
 
 import PrimeVue from 'primevue/config'
 import Menubar from 'primevue/menubar'
@@ -16,5 +17,8 @@ app.use(createPinia())
 app.use(router)
 app.use(PrimeVue)
 app.component('Menubar', Menubar)
+
+const auth = useAuthStore()
+auth.init()
 
 app.mount('#app')
