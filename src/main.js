@@ -7,8 +7,7 @@ import router from './router'
 import PrimeVue from 'primevue/config'
 import Menubar from 'primevue/menubar'
 
-
-
+import './assets/global.css'
 import 'primeicons/primeicons.css'
 
 const app = createApp(App)
