@@ -1,22 +1,22 @@
 <template>
   <div
-    class="pokecuento-card"
+    class="pokefilm-card"
     :class="{ selected }"
     @click="$emit('select')"
   >
     <div class="card-image">
-      <img :src="pokecuento.imagenurl" :alt="pokecuento.nombre" />
+      <img :src="pokefilm.imagenurl" :alt="pokefilm.nombre" />
     </div>
     <div class="card-body">
-      <h3 class="card-title">{{ pokecuento.nombre }}</h3>
-      <p class="card-author">{{ pokecuento.autor }}</p>
+      <h3 class="card-title">{{ pokefilm.nombre }}</h3>
+      <p class="card-author">{{ pokefilm.autor }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
 defineProps({
-  pokecuento: {
+  pokefilm: {
     type: Object,
     required: true
   },
@@ -30,7 +30,7 @@ defineEmits(['select'])
 </script>
 
 <style scoped>
-.pokecuento-card {
+.pokefilm-card {
   background: #16161e;
   border: 2px solid #2a2a35;
   border-radius: 12px;
@@ -39,13 +39,13 @@ defineEmits(['select'])
   cursor: pointer;
 }
 
-.pokecuento-card:hover {
+.pokefilm-card:hover {
   transform: translateY(-4px);
   border-color: #c9a84c;
   box-shadow: 0 8px 24px rgba(201, 168, 76, 0.15);
 }
 
-.pokecuento-card.selected {
+.pokefilm-card.selected {
   border-color: #c9a84c;
   box-shadow: 0 0 0 2px #c9a84c, 0 8px 24px rgba(201, 168, 76, 0.25);
 }

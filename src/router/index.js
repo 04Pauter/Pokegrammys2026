@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth.js'
 
 import HomeView from '../views/HomeView.vue'
 import Pokecuento from '@/views/Pokecuento.vue'
+import Pokefilm from '@/views/Pokefilm.vue'
 import LoginViw from '@/views/LoginViw.vue'
 import Register from '@/views/Register.vue'
 
@@ -19,6 +20,11 @@ const router = createRouter({
       path: '/Pokecuento',
       name: 'Pokecuento',
       component: Pokecuento
+    },
+    {
+      path: '/Pokefilm',
+      name: 'Pokefilm',
+      component: Pokefilm
     },
     {
       path: '/Home',
