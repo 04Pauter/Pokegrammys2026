@@ -1,5 +1,5 @@
 <template>
-  <div class="pokecuento-view">
+  <div class="pokefilm-view">
     <header class="page-header">
       <button class="back-btn" v-if="currentCategoryIndex > 0" @click="goBack">&larr; Anterior</button>
       <h1>Pokegrammys</h1>
@@ -24,10 +24,10 @@
       </div>
 
       <div class="cards-grid">
-        <PokecuentoCard
-          v-for="item in pokecuentos"
+        <PokefilmCard
+          v-for="item in pokefilms"
           :key="item.id"
-          :pokecuento="item"
+          :pokefilm="item"
           :selected="selectedNomineeId === item.id"
           @select="selectedNomineeId = item.id"
         />
@@ -56,12 +56,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { supabase } from '../lib/supabase.js'
 import { useAuthStore } from '@/stores/auth.js'
-import { Pokecuento } from '../models/Pokecuento.js'
-import PokecuentoCard from '../components/PokecuentoCard.vue'
+import { Pokefilm } from '../models/Pokefilm.js'
+import PokefilmCard from '../components/PokefilmCard.vue'
+
 
 const auth = useAuthStore()
 
-const pokecuentos = ref([])
+const pokefilms = ref([])
 const categories = ref([])
 const currentCategoryIndex = ref(0)
 const selectedNomineeId = ref(null)
@@ -80,8 +81,8 @@ const progressPercent = computed(() =>
 async function loadCategory(index) {
   const category = categories.value[index]
   const { data, error } = await supabase
-    .from('nominados_pokeserie')
-    .select('*, pokecuento(*)')
+    .from('nominados_pokefilm')
+    .select('*, pokefilm(*)')
     .eq('categoria_id', category.id)
 
   if (error) {
@@ -89,14 +90,14 @@ async function loadCategory(index) {
     return
   }
 
-  pokecuentos.value = data.map(item => new Pokecuento(item.pokecuento))
+  pokefilms.value = data.map(item => new Pokefilm(item.pokefilm))
   selectedNomineeId.value = null
 }
 
 async function submitVote() {
   votes.value.push({
     categoria_id: currentCategory.value.id,
-    pokecuento_id: selectedNomineeId.value
+    pokefilm_id: selectedNomineeId.value
   })
 
   if (currentCategoryIndex.value < categories.value.length - 1) {
@@ -113,7 +114,7 @@ async function goBack() {
   await loadCategory(currentCategoryIndex.value)
   const lastVote = votes.value[votes.value.length - 1]
   if (lastVote) {
-    selectedNomineeId.value = lastVote.pokecuento_id
+    selectedNomineeId.value = lastVote.pokefilm_id
   }
 }
 
@@ -121,15 +122,19 @@ async function submitAllVotes() {
   const inserts = votes.value.map(v => ({
     votante_id: auth.user.id,
     categoria_id: v.categoria_id,
-    pokecuento_id: v.pokecuento_id
+    pokefilm_id: v.pokefilm_id
   }))
 
   errorMessage.value = ''
 
-  const { error } = await supabase.from('votacion_pokeserie').insert(inserts)
+  const { error } = await supabase.from('votacion_pokefilm').insert(inserts)
 
   if (error) {
-    errorMessage.value = 'Error al enviar els vots. Torna-ho a intentar.'
+    errorMessage.value = 'Error al enviar los votos. \n';
+    if (error.code = '23505'){
+     errorMessage.value += 'Ya has votado anteriormente'; 
+    }
+    console.error('Error submitting votes:', error)
     return
   }
 
@@ -138,7 +143,7 @@ async function submitAllVotes() {
 
 onMounted(async () => {
   const { data: categoriesData, error: categoriesError } = await supabase
-    .from('categorias_pokeserie')
+    .from('categorias_pokefilm')
     .select('*')
 
   if (categoriesError) {
@@ -158,7 +163,7 @@ onMounted(async () => {
 </script>
 
 <style>
-.pokecuento-view {
+.pokefilm-view {
   padding: 2rem;
   flex: 1;
 }

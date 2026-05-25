@@ -17,6 +17,7 @@ const items = computed(() => {
   return [
     { label: 'Home', icon: 'pi pi-home', command: () => router.push('/Home') },
     { label: 'Pokecuento', icon: 'pi pi-youtube', command: () => router.push('/Pokecuento') },
+    { label: 'Pokefilm', icon: 'pi pi-video', command: () => router.push('/Pokefilm') },
     { label: 'Tancar sessió', icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) },
   ]
 })
