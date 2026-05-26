@@ -6,8 +6,10 @@ import Pokecuento from '@/views/Pokecuento.vue'
 import Pokefilm from '@/views/Pokefilm.vue'
 import LoginViw from '@/views/LoginViw.vue'
 import Register from '@/views/Register.vue'
+import AdminView from '@/views/AdminView.vue'
 
 const publicRoutes = ['Login', 'Registro']
+const adminRoutes = ['AdminPanel']
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,17 +37,28 @@ const router = createRouter({
       path: '/Register',
       name: 'Registro',
       component: Register
+    },
+   {
+      path: '/Admin',
+      name: 'AdminPanel',
+      component: AdminView
     }],
 })
 
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
 
-  if (!auth.loading && !auth.isAuthenticated && !publicRoutes.includes(to.name)) {
-    next({ name: 'Login' })
-  } else {
-    next()
+  if (auth.loading || auth.profileLoading) return next()
+
+  if (!auth.isAuthenticated && !publicRoutes.includes(to.name)) {
+    return next({ name: 'Login' })
   }
+
+  if (adminRoutes.includes(to.name) && !auth.isAdmin) {
+    return next({ name: 'Home' })
+  }
+
+  next()
 })
 
 export default router
