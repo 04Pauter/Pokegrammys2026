@@ -14,12 +14,20 @@ const items = computed(() => {
       { label: 'Registro', icon: 'pi pi-user-plus', command: () => router.push('/Register') },
     ]
   }
-  return [
+
+  const menuItems = [
     { label: 'Home', icon: 'pi pi-home', command: () => router.push('/Home') },
     { label: 'Pokecuento', icon: 'pi pi-youtube', command: () => router.push('/Pokecuento') },
     { label: 'Pokefilm', icon: 'pi pi-video', command: () => router.push('/Pokefilm') },
-    { label: 'Tancar sessió', icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) },
   ]
+
+  if (auth.isAdmin) {
+    menuItems.push({ label: 'Admin', icon: 'pi pi-cog', command: () => router.push('/Admin') })
+  }
+
+  menuItems.push({ label: 'Tancar sessió', icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) })
+
+  return menuItems
 })
 </script>
 
