@@ -1,7 +1,7 @@
 <template>
   <div class="home-view">
-    <h1>Pokegrammys 2026</h1>
-    <router-link to="/Pokecuento" class="cta-link">Votacion</router-link>
+    <h1>{{ $t('home.title') }}</h1>
+    <router-link to="/Pokecuento" class="cta-link">{{ $t('home.voteCta') }}</router-link>
   </div>
 </template>
 

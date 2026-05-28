@@ -1,6 +1,6 @@
 <template>
   <div class="admin-view">
-    <h1>Panell d'Administració</h1>
+    <h1>{{ $t('admin.title') }}</h1>
     <!--<p>Benvingut, {{ auth.user?.email }}</p>-->
 
     <div class="admin-grid">
