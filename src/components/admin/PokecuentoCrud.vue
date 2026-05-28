@@ -1,21 +1,21 @@
 <template>
   <div class="crud-section">
     <div class="crud-header">
-      <h2>Pokecuentos</h2>
-      <button @click="openCreate">Nou Pokecuento</button>
+      <h2>{{ $t('admin.pokecuentos.title') }}</h2>
+      <button @click="openCreate">{{ $t('admin.pokecuentos.new') }}</button>
     </div>
 
     <div v-if="showForm" class="crud-form">
-      <h3>{{ editing ? 'Editar Pokecuento' : 'Nou Pokecuento' }}</h3>
+      <h3>{{ editing ? $t('admin.pokecuentos.editTitle') : $t('admin.pokecuentos.newTitle') }}</h3>
       <form @submit.prevent="save">
-        <input v-model="form.nombre" placeholder="Nom" required />
-        <input v-model="form.autor" placeholder="Autor" required />
-        <input v-model="form.imagenurl" placeholder="URL de la imatge" />
-        <input v-model="form.audiourl" placeholder="URL d'audio" />
-        <input v-model="form.videourl" placeholder="URL del video" />
+        <input v-model="form.nombre" :placeholder="$t('admin.pokecuentos.namePlaceholder')" required />
+        <input v-model="form.autor" :placeholder="$t('admin.pokecuentos.authorPlaceholder')" required />
+        <input v-model="form.imagenurl" :placeholder="$t('admin.pokecuentos.imagePlaceholder')" />
+        <input v-model="form.audiourl" :placeholder="$t('admin.pokecuentos.audioPlaceholder')" />
+        <input v-model="form.videourl" :placeholder="$t('admin.pokecuentos.videoPlaceholder')" />
         <div class="form-actions">
-          <button type="submit">{{ editing ? 'Guardar' : 'Crear' }}</button>
-          <button type="button" class="btn-secondary" @click="cancelForm">Cancel·lar</button>
+          <button type="submit">{{ editing ? $t('admin.pokecuentos.save') : $t('admin.pokecuentos.create') }}</button>
+          <button type="button" class="btn-secondary" @click="cancelForm">{{ $t('admin.pokecuentos.cancel') }}</button>
         </div>
       </form>
     </div>
@@ -25,11 +25,11 @@
     <table v-if="items.length" class="crud-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nom</th>
-          <th>Autor</th>
-          <th>Imatge</th>
-          <th>Accions</th>
+          <th>{{ $t('admin.pokecuentos.id') }}</th>
+          <th>{{ $t('admin.pokecuentos.name') }}</th>
+          <th>{{ $t('admin.pokecuentos.author') }}</th>
+          <th>{{ $t('admin.pokecuentos.image') }}</th>
+          <th>{{ $t('admin.pokecuentos.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -41,19 +41,22 @@
             <img v-if="item.imagenurl" :src="item.imagenurl" :alt="item.nombre" class="thumb" />
           </td>
           <td class="actions">
-            <button @click="openEdit(item)">Editar</button>
-            <button class="btn-danger" @click="confirmDelete(item)">Eliminar</button>
+            <button @click="openEdit(item)">{{ $t('admin.pokecuentos.edit') }}</button>
+            <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.pokecuentos.delete') }}</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <p v-else class="empty">No hi ha pokecuentos.</p>
+    <p v-else class="empty">{{ $t('admin.pokecuentos.empty') }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { supabase } from '@/lib/supabase.js'
+
+const { t } = useI18n()
 
 const items = ref([])
 const showForm = ref(false)
@@ -114,7 +117,7 @@ async function save() {
 }
 
 async function confirmDelete(item) {
-  if (!confirm(`Segur que vols eliminar "${item.nombre}"?`)) return
+  if (!confirm(t('admin.pokecuentos.confirmDelete', { name: item.nombre }))) return
   const { error: err } = await supabase.from(TABLE).delete().eq('id', item.id)
   if (err) {
     error.value = err.message
@@ -127,115 +130,4 @@ onMounted(load)
 </script>
 
 <style scoped>
-.crud-section {
-  background: #111118;
-  border: 1px solid #2a2a35;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.crud-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.crud-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.crud-form {
-  background: #0e0e14;
-  border: 1px solid #2a2a35;
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.crud-form h3 {
-  margin: 0 0 1rem;
-  font-size: 1.15rem;
-}
-
-.crud-form form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  background: #2a2a35;
-  color: #ccc;
-}
-
-.btn-secondary:hover {
-  background: #3a3a45;
-}
-
-.btn-danger {
-  background: #c0392b;
-}
-
-.btn-danger:hover {
-  background: #e74c3c;
-}
-
-.crud-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.crud-table th,
-.crud-table td {
-  padding: 0.65rem 0.75rem;
-  border-bottom: 1px solid #2a2a35;
-  text-align: left;
-}
-
-.crud-table th {
-  font-weight: 700;
-  color: #c9a84c;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.crud-table td.actions {
-  white-space: nowrap;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.crud-table td.actions button {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.8rem;
-}
-
-.thumb {
-  width: 60px;
-  height: 34px;
-  object-fit: cover;
-  border-radius: 4px;
-  display: block;
-}
-
-.empty {
-  color: #666;
-  font-style: italic;
-}
-
-.error-msg {
-  color: #e74c3c;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-}
 </style>

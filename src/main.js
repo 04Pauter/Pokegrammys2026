@@ -11,11 +11,14 @@ import Menubar from 'primevue/menubar'
 import './assets/global.css'
 import 'primeicons/primeicons.css'
 
+import i18n from './i18n.js'
+
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 app.use(PrimeVue)
+app.use(i18n)
 app.component('Menubar', Menubar)
 
 const auth = useAuthStore()

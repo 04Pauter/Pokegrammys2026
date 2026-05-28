@@ -1,21 +1,21 @@
 <template>
   <div class="crud-section">
     <div class="crud-header">
-      <h2>Categories</h2>
+      <h2>{{ $t('admin.categories.title') }}</h2>
       <div class="tab-bar">
-        <button :class="{ active: tab === 'pokeserie' }" @click="tab = 'pokeserie'">Pokeserie</button>
-        <button :class="{ active: tab === 'pokefilm' }" @click="tab = 'pokefilm'">Pokefilm</button>
+        <button :class="{ active: tab === 'pokeserie' }" @click="tab = 'pokeserie'">{{ $t('admin.categories.tabPokeserie') }}</button>
+        <button :class="{ active: tab === 'pokefilm' }" @click="tab = 'pokefilm'">{{ $t('admin.categories.tabPokefilm') }}</button>
       </div>
-      <button @click="openCreate">Nova Categoria</button>
+      <button @click="openCreate">{{ $t('admin.categories.new') }}</button>
     </div>
 
     <div v-if="showForm" class="crud-form">
-      <h3>{{ editing ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
+      <h3>{{ editing ? $t('admin.categories.editTitle') : $t('admin.categories.newTitle') }}</h3>
       <form @submit.prevent="save">
-        <input v-model="form.nombre" placeholder="Nom de la categoria" required />
+        <input v-model="form.nombre" :placeholder="$t('admin.categories.namePlaceholder')" required />
         <div class="form-actions">
-          <button type="submit">{{ editing ? 'Guardar' : 'Crear' }}</button>
-          <button type="button" class="btn-secondary" @click="cancelForm">Cancel·lar</button>
+          <button type="submit">{{ editing ? $t('admin.categories.save') : $t('admin.categories.create') }}</button>
+          <button type="button" class="btn-secondary" @click="cancelForm">{{ $t('admin.categories.cancel') }}</button>
         </div>
       </form>
     </div>
@@ -25,9 +25,9 @@
     <table v-if="items.length" class="crud-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nom</th>
-          <th>Accions</th>
+          <th>{{ $t('admin.categories.id') }}</th>
+          <th>{{ $t('admin.categories.name') }}</th>
+          <th>{{ $t('admin.categories.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -35,19 +35,22 @@
           <td>{{ item.id }}</td>
           <td>{{ item.nombre }}</td>
           <td class="actions">
-            <button @click="openEdit(item)">Editar</button>
-            <button class="btn-danger" @click="confirmDelete(item)">Eliminar</button>
+            <button @click="openEdit(item)">{{ $t('admin.categories.edit') }}</button>
+            <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.categories.delete') }}</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <p v-else class="empty">No hi ha categories.</p>
+    <p v-else class="empty">{{ $t('admin.categories.empty') }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { supabase } from '@/lib/supabase.js'
+
+const { t } = useI18n()
 
 const TABLES = {
   pokeserie: 'categorias_pokeserie',
@@ -123,7 +126,7 @@ async function save() {
 }
 
 async function confirmDelete(item) {
-  if (!confirm(`Segur que vols eliminar "${item.nombre}"?`)) return
+  if (!confirm(t('admin.categories.confirmDelete', { name: item.nombre }))) return
   const { error: err } = await supabase.from(currentTable()).delete().eq('id', item.id)
   if (err) {
     error.value = err.message
@@ -136,134 +139,4 @@ onMounted(load)
 </script>
 
 <style scoped>
-.crud-section {
-  background: #111118;
-  border: 1px solid #2a2a35;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.crud-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.crud-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.tab-bar {
-  display: flex;
-  gap: 0.25rem;
-  background: #0e0e14;
-  border-radius: 8px;
-  padding: 0.25rem;
-}
-
-.tab-bar button {
-  padding: 0.4rem 1rem;
-  font-size: 0.85rem;
-  background: transparent;
-  color: #888;
-  border-radius: 6px;
-}
-
-.tab-bar button.active {
-  background: #2a2a35;
-  color: #fff;
-}
-
-.tab-bar button:hover:not(.active) {
-  color: #ccc;
-}
-
-.crud-form {
-  background: #0e0e14;
-  border: 1px solid #2a2a35;
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.crud-form h3 {
-  margin: 0 0 1rem;
-  font-size: 1.15rem;
-}
-
-.crud-form form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  background: #2a2a35;
-  color: #ccc;
-}
-
-.btn-secondary:hover {
-  background: #3a3a45;
-}
-
-.btn-danger {
-  background: #c0392b;
-}
-
-.btn-danger:hover {
-  background: #e74c3c;
-}
-
-.crud-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.crud-table th,
-.crud-table td {
-  padding: 0.65rem 0.75rem;
-  border-bottom: 1px solid #2a2a35;
-  text-align: left;
-}
-
-.crud-table th {
-  font-weight: 700;
-  color: #c9a84c;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.crud-table td.actions {
-  white-space: nowrap;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.crud-table td.actions button {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.8rem;
-}
-
-.empty {
-  color: #666;
-  font-style: italic;
-}
-
-.error-msg {
-  color: #e74c3c;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-}
 </style>
