@@ -1,12 +1,12 @@
 <template>
   <div class="login-view">
-    <h1>Login</h1>
+    <h1>{{ $t('auth.titleLogin') }}</h1>
     <form @submit.prevent="handleLogin" class="login-form">
-      <input v-model="email" placeholder="Email" type="email" required />
-      <input v-model="password" placeholder="Contraseña" type="password" required />
+      <input v-model="email" :placeholder="$t('auth.email')" type="email" required />
+      <input v-model="password" :placeholder="$t('auth.password')" type="password" required />
       <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
       <button type="submit" :disabled="loading">
-        {{ loading ? 'Entrant...' : 'Entrar' }}
+        {{ loading ? $t('auth.loggingIn') : $t('auth.loginButton') }}
       </button>
     </form>
   </div>
@@ -66,11 +66,5 @@ const handleLogin = async () => {
   align-items: center;
   gap: 1rem;
   width: 100%;
-}
-
-.error {
-  color: #e74c3c;
-  font-size: 0.875rem;
-  margin: 0;
 }
 </style>

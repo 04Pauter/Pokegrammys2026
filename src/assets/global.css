@@ -42,7 +42,7 @@ a:hover {
   width: 100%;
   background: #111118;
   border-bottom: 1px solid #2a2a35;
-  padding: 1rem 2rem;
+  padding: 1.35rem 2rem;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -147,4 +147,406 @@ button,
 button:hover,
 .btn:hover {
   background: #e0c66a;
+}
+
+/* --- VOTING UI (Pokecuento.vue / Pokefilm.vue) --- */
+
+.pokecuento-view,
+.pokefilm-view {
+  padding: 2rem;
+  flex: 1;
+}
+
+.page-header {
+  position: relative;
+  text-align: center;
+  padding-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.page-header h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.back-btn {
+  position: absolute;
+  left: 2rem;
+  top: 2rem;
+  background: none;
+  border: 1px solid #2a2a35;
+  color: #c9a84c;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.back-btn:hover {
+  border-color: #c9a84c;
+  color: #ffffff;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #c9a84c;
+  margin: 0.35rem 0 0;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.progress-bar {
+  width: 100%;
+  max-width: 600px;
+  height: 6px;
+  background: #2a2a35;
+  border-radius: 3px;
+  margin: 0 auto 0.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #c9a84c;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  color: #888;
+  font-size: 0.85rem;
+  margin: 0 0 2rem;
+}
+
+.category-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.category-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.vote-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.vote-btn {
+  padding: 0.85rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #16161e;
+  background: #c9a84c;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.vote-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.vote-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.loading-state,
+.done-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: #888;
+  gap: 1rem;
+}
+
+.done-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #c9a84c;
+  color: #16161e;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.done-state h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.done-state p {
+  margin: 0;
+  color: #888;
+}
+
+.error-message {
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  padding: 0.75rem 1rem;
+  background: #2d1515;
+  border: 1px solid #e74c3c;
+  border-radius: 8px;
+  color: #e74c3c;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #2a2a35;
+  border-top-color: #c9a84c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- NOMINEE CARDS (PokecuentoCard.vue / PokefilmCard.vue) --- */
+
+.pokecuento-card,
+.pokefilm-card {
+  background: #16161e;
+  border: 2px solid #2a2a35;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.pokecuento-card:hover,
+.pokefilm-card:hover {
+  transform: translateY(-4px);
+  border-color: #c9a84c;
+  box-shadow: 0 8px 24px rgba(201, 168, 76, 0.15);
+}
+
+.pokecuento-card.selected,
+.pokefilm-card.selected {
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 2px #c9a84c, 0 8px 24px rgba(201, 168, 76, 0.25);
+}
+
+.card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0e0e14;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-body {
+  padding: 1rem 1.25rem;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.card-author {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* --- ADMIN CRUD (components compartits) --- */
+
+.crud-section {
+  background: #111118;
+  border: 1px solid #2a2a35;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.crud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.crud-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.crud-form {
+  background: #0e0e14;
+  border: 1px solid #2a2a35;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.crud-form h3 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
+
+.crud-form form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-secondary {
+  background: #2a2a35;
+  color: #ccc;
+}
+
+.btn-secondary:hover {
+  background: #3a3a45;
+}
+
+.btn-danger {
+  background: #c0392b;
+}
+
+.btn-danger:hover {
+  background: #e74c3c;
+}
+
+.crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.crud-table th,
+.crud-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #2a2a35;
+  text-align: left;
+}
+
+.crud-table th {
+  font-weight: 700;
+  color: #c9a84c;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.crud-table td.actions {
+  white-space: nowrap;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.crud-table td.actions button {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+.thumb {
+  width: 60px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  background: #0e0e14;
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.tab-bar button {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  background: transparent;
+  color: #888;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.tab-bar button.active {
+  background: #2a2a35;
+  color: #fff;
+}
+
+.tab-bar button:hover:not(.active) {
+  color: #ccc;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+}
+
+.error {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.error-msg {
+  color: #e74c3c;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.success {
+  color: #2ecc71;
+  font-size: 0.875rem;
+  margin: 0;
 }
