@@ -122,6 +122,12 @@ async function goBack() {
 }
 
 async function submitAllVotes() {
+
+  if (!auth.user) {
+    errorMessage.value = t('auth.loginRequired')
+    return
+  }
+
   const inserts = votes.value.map(v => ({
     votante_id: auth.user.id,
     categoria_id: v.categoria_id,
@@ -130,13 +136,18 @@ async function submitAllVotes() {
 
   errorMessage.value = ''
 
-  const { error } = await supabase.from('votacion_pokefilm').insert(inserts)
+  const { error } = await supabase
+    .from('votacion_pokefilm')
+    .insert(inserts)
 
   if (error) {
-    errorMessage.value = t('voting.errorSending') + '\n';
-    if (error.code = '23505'){
-     errorMessage.value += t('voting.alreadyVoted'); 
+
+    errorMessage.value = t('voting.errorSending') + '\n'
+
+    if (error.code === '23505') {
+      errorMessage.value += t('voting.alreadyVoted')
     }
+
     console.error('Error submitting votes:', error)
     return
   }
