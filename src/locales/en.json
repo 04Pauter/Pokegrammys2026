@@ -38,6 +38,15 @@
     "errorSending": "Error sending votes. Try again.",
     "alreadyVoted": "You have already voted"
   },
+  "info": {
+    "back": "Back",
+    "title": "Information",
+    "author": "Author",
+    "audio": "Audio",
+    "video": "Video",
+    "notFound": "Content not found",
+    "viewInfo": "View information"
+  },
   "admin": {
     "title": "Admin Panel",
     "categories": {

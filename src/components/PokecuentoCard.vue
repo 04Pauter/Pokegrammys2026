@@ -6,6 +6,7 @@
   >
     <div class="card-image">
       <img :src="pokecuento.imagenurl" :alt="pokecuento.nombre" />
+      <button class="info-btn" @click.stop="goToInfo" :title="$t('info.viewInfo')">&#8505;</button>
     </div>
     <div class="card-body">
       <h3 class="card-title">{{ pokecuento.nombre }}</h3>
@@ -15,7 +16,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
   pokecuento: {
     type: Object,
     required: true
@@ -27,6 +30,12 @@ defineProps({
 })
 
 defineEmits(['select'])
+
+const router = useRouter()
+
+function goToInfo() {
+  router.push({ name: 'PokecuentoInfo', params: { id: props.pokecuento.id } })
+}
 </script>
 
 <style scoped>
