@@ -218,3 +218,84 @@ GROUP BY categoria_id, pokefilm_id;
 
 GRANT SELECT ON resultados_pokeserie TO anon, authenticated;
 GRANT SELECT ON resultados_pokefilm TO anon, authenticated;
+
+-- Funció que comprova si l'usuari és admin (bypasseja RLS de profiles)
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+STABLE
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$;
+-- Ara les policies usen la funció en lloc de la subconsulta directa
+CREATE POLICY "Admins can insert Pokecuento"
+ON Pokecuento FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can update Pokecuento"
+ON Pokecuento FOR UPDATE TO authenticated
+USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete Pokecuento"
+ON Pokecuento FOR DELETE TO authenticated
+USING (is_admin());
+-- Repeteix per Pokefilm, categorias_pokeserie, categorias_pokefilm, nominados_pokeserie, nominados_pokefilm
+
+-- =========================================================
+-- POKEFILM
+-- =========================================================
+CREATE POLICY "Admins can insert Pokefilm"
+ON Pokefilm FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can update Pokefilm"
+ON Pokefilm FOR UPDATE TO authenticated
+USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete Pokefilm"
+ON Pokefilm FOR DELETE TO authenticated
+USING (is_admin());
+-- =========================================================
+-- CATEGORIAS_POKESERIE
+-- =========================================================
+CREATE POLICY "Admins can insert categorias_pokeserie"
+ON categorias_pokeserie FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can update categorias_pokeserie"
+ON categorias_pokeserie FOR UPDATE TO authenticated
+USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete categorias_pokeserie"
+ON categorias_pokeserie FOR DELETE TO authenticated
+USING (is_admin());
+-- =========================================================
+-- CATEGORIAS_POKEFILM
+-- =========================================================
+CREATE POLICY "Admins can insert categorias_pokefilm"
+ON categorias_pokefilm FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can update categorias_pokefilm"
+ON categorias_pokefilm FOR UPDATE TO authenticated
+USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete categorias_pokefilm"
+ON categorias_pokefilm FOR DELETE TO authenticated
+USING (is_admin());
+-- =========================================================
+-- NOMINADOS_POKESERIE
+-- =========================================================
+CREATE POLICY "Admins can insert nominados_pokeserie"
+ON nominados_pokeserie FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete nominados_pokeserie"
+ON nominados_pokeserie FOR DELETE TO authenticated
+USING (is_admin());
+-- =========================================================
+-- NOMINADOS_POKEFILM
+-- =========================================================
+CREATE POLICY "Admins can insert nominados_pokefilm"
+ON nominados_pokefilm FOR INSERT TO authenticated
+WITH CHECK (is_admin());
+CREATE POLICY "Admins can delete nominados_pokefilm"
+ON nominados_pokefilm FOR DELETE TO authenticated
+USING (is_admin());
