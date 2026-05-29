@@ -363,6 +363,7 @@ button:hover,
 }
 
 .card-image {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -392,6 +393,127 @@ button:hover,
   margin: 0.35rem 0 0;
   font-size: 0.85rem;
   color: #888;
+}
+
+.info-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #c9a84c;
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s, transform 0.15s;
+  z-index: 2;
+}
+
+.info-btn:hover {
+  background: rgba(201, 168, 76, 0.25);
+  transform: scale(1.1);
+}
+
+/* --- INFO VIEW (PokecuentoInfo.vue / PokefilmInfo.vue) --- */
+
+.info-view {
+  padding: 2rem;
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.info-header {
+  position: relative;
+  text-align: center;
+  padding-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.info-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.info-image {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0e0e14;
+}
+
+.info-image img {
+  width: 100%;
+  display: block;
+}
+
+.info-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.info-name {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.info-author {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #c9a84c;
+  font-weight: 600;
+}
+
+.info-media {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #16161e;
+  border: 1px solid #2a2a35;
+  border-radius: 12px;
+}
+
+.info-media h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #c9a84c;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.audio-player {
+  width: 100%;
+  max-width: 500px;
+}
+
+.video-player {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 8px;
 }
 
 /* --- ADMIN CRUD (components compartits) --- */

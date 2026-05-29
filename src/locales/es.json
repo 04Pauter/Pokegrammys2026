@@ -38,6 +38,15 @@
     "errorSending": "Error al enviar los votos. Inténtalo de nuevo.",
     "alreadyVoted": "Ya has votado anteriormente"
   },
+  "info": {
+    "back": "Volver",
+    "title": "Información",
+    "author": "Autor",
+    "audio": "Audio",
+    "video": "Vídeo",
+    "notFound": "Contenido no encontrado",
+    "viewInfo": "Ver información"
+  },
   "admin": {
     "title": "Panel de Administración",
     "categories": {

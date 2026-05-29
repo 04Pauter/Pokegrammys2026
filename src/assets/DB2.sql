@@ -130,3 +130,24 @@ CREATE TABLE IF NOT EXISTS votacion_pokefilm (
     -- Restricción única por votante y categoría
     UNIQUE (votante_id, categoria_id)
 );
+
+
+--SQL - Crear taula profiles
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'voter',
+  created_at TIMESTAMP DEFAULT now()
+);
+--SQL - Trigger per crear profile automàticament al registrar-se
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, role)
+  VALUES (NEW.id, 'voter');
+  RETURN NEW;
+END;
+-- LANGUAGE plpgsql SECURITY DEFINER;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION handle_new_user();

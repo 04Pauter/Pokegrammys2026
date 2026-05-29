@@ -7,6 +7,8 @@ import Pokefilm from '@/views/Pokefilm.vue'
 import LoginViw from '@/views/LoginViw.vue'
 import Register from '@/views/Register.vue'
 import AdminView from '@/views/AdminView.vue'
+import PokecuentoInfo from '@/views/PokecuentoInfo.vue'
+import PokefilmInfo from '@/views/PokefilmInfo.vue'
 
 const publicRoutes = ['Login', 'Registro']
 const adminRoutes = ['AdminPanel']
@@ -42,6 +44,16 @@ const router = createRouter({
       path: '/Admin',
       name: 'AdminPanel',
       component: AdminView
+    },
+    {
+      path: '/Pokecuento/:id/info',
+      name: 'PokecuentoInfo',
+      component: PokecuentoInfo
+    },
+    {
+      path: '/Pokefilm/:id/info',
+      name: 'PokefilmInfo',
+      component: PokefilmInfo
     }],
 })
 
