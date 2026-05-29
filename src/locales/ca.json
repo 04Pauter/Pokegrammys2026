@@ -38,6 +38,15 @@
     "errorSending": "Error al enviar els vots. Torna-ho a intentar.",
     "alreadyVoted": "Ja has votat anteriorment"
   },
+  "info": {
+    "back": "Tornar",
+    "title": "Informació",
+    "author": "Autor",
+    "audio": "Àudio",
+    "video": "Vídeo",
+    "notFound": "No s'ha trobat el contingut",
+    "viewInfo": "Veure informació"
+  },
   "admin": {
     "title": "Panell d'Administració",
     "categories": {
