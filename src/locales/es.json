@@ -36,7 +36,7 @@
     "completed": "¡Votación completada!",
     "thanks": "Gracias por votar en los Pokegrammys {year}",
     "errorSending": "Error al enviar los votos. Inténtalo de nuevo.",
-    "alreadyVoted": "Ya has votado anteriormente"
+    "alreadyVoted": "Ya has votado en alguna categoría anteriormente. Inténtalo de nuevo."
   },
   "info": {
     "back": "Volver",
@@ -80,7 +80,8 @@
       "nominee": "Nominado",
       "actions": "Acciones",
       "delete": "Eliminar",
-      "empty": "No hay nominaciones."
+      "empty": "No hay nominaciones.",
+      "duplicate": "Este nominado ya está asignado a esta categoría."
     },
     "pokecuentos": {
       "title": "Pokecuentos",
