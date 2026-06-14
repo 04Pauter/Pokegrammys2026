@@ -3,9 +3,9 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.js'
-import Menubar from 'primevue/menubar'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const { t, locale } = useI18n()
 
@@ -43,13 +43,11 @@ function setLocale(loc) {
   localStorage.setItem('locale', loc)
 }
 
-const languages = [
+const langMenu = ref()
+const langItems = [
   { label: 'Català', command: () => setLocale('ca') },
-  { separator: true },
   { label: 'Castellano', command: () => setLocale('es') },
-  { separator: true },
   { label: 'English', command: () => setLocale('en') },
-  { separator: true },
   { label: 'Русский', command: () => setLocale('ru') },
 ]
 
@@ -68,14 +66,14 @@ const items = computed(() => {
     ]
   }
 
-  const menuItems = [
-    { label: t('nav.home'), icon: 'pi pi-home', command: () => router.push('/Home') },
-    { label: t('nav.pokecuento'), icon: 'pi pi-youtube', command: () => router.push('/Pokecuento') },
-    { label: t('nav.pokefilm'), icon: 'pi pi-video', command: () => router.push('/Pokefilm') },
+  const items = [
+    { label: t('nav.home'), icon: 'pi pi-home', class: isActive('/Home') ? 'active-route' : '', command: () => router.push('/Home') },
+    { label: t('nav.pokecuento'), icon: 'pi pi-youtube', class: isActive('/Pokecuento') ? 'active-route' : '', command: () => router.push('/Pokecuento') },
+    { label: t('nav.pokefilm'), icon: 'pi pi-video', class: isActive('/Pokefilm') ? 'active-route' : '', command: () => router.push('/Pokefilm') },
   ]
 
   if (auth.isAdmin) {
-    menuItems.push({ label: t('nav.admin'), icon: 'pi pi-cog', command: () => router.push('/Admin') })
+    items.push({ label: t('nav.admin'), icon: 'pi pi-cog', class: isActive('/Admin') ? 'active-route' : '', command: () => router.push('/Admin') })
   }
 
   menuItems.push(
@@ -87,6 +85,10 @@ const items = computed(() => {
 
   return menuItems
 })
+
+function logout() {
+  auth.logout().then(() => router.push('/'))
+}
 </script>
 
 <template>
@@ -97,4 +99,3 @@ const items = computed(() => {
     </Transition>
   </router-view>
 </template>
-

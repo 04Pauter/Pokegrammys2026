@@ -2,8 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 
 import HomeView from '../views/HomeView.vue'
-import Pokecuento from '@/views/Pokecuento.vue'
-import Pokefilm from '@/views/Pokefilm.vue'
+import VotingView from '@/views/VotingView.vue'
 import LoginViw from '@/views/LoginViw.vue'
 import Register from '@/views/Register.vue'
 import AdminView from '@/views/AdminView.vue'
@@ -23,12 +22,14 @@ const router = createRouter({
     {
       path: '/Pokecuento',
       name: 'Pokecuento',
-      component: Pokecuento
+      component: VotingView,
+      props: { type: 'pokeserie' }
     },
     {
       path: '/Pokefilm',
       name: 'Pokefilm',
-      component: Pokefilm
+      component: VotingView,
+      props: { type: 'pokefilm' }
     },
     {
       path: '/Home',

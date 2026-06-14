@@ -13,11 +13,15 @@
   },
   "home": {
     "title": "Pokegrammys 2026",
-    "voteCta": "Votació"
+    "voteCta": "Votació",
+    "year": "2026",
+    "subtitle": "Els millors Pokecuentos i Pokefilms de la comunitat"
   },
   "auth": {
     "titleLogin": "Login",
     "titleRegister": "Registre",
+    "loginSubtitle": "Accedeix al teu compte",
+    "registerSubtitle": "Crea el teu compte",
     "email": "Email",
     "password": "Contrasenya",
     "confirmPassword": "Repetir contrasenya",
@@ -26,7 +30,9 @@
     "creatingAccount": "Creant compte...",
     "createAccount": "Crear compte",
     "passwordsDontMatch": "Les contrasenyes no coincideixen",
-    "accountCreated": "Compte creat! Revisa el teu email per confirmar-lo."
+    "accountCreated": "Compte creat! Revisa el teu email per confirmar-lo.",
+    "noAccount": "No tens compte?",
+    "hasAccount": "Ja tens compte?"
   },
   "voting": {
     "back": "Anterior",
@@ -38,7 +44,8 @@
     "completed": "Votació completada!",
     "thanks": "Gràcies per votar als Pokegrammys {year}",
     "errorSending": "Error al enviar els vots. Torna-ho a intentar.",
-    "alreadyVoted": "Ja has votat en alguna categoria anteriorment. Torna-ho a intentar."
+    "alreadyVoted": "Ja has votat en alguna categoria anteriorment. Torna-ho a intentar.",
+    "backHome": "Tornar a l'inici"
   },
   "info": {
     "back": "Tornar",
