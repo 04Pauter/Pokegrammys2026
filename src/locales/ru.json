@@ -7,7 +7,9 @@
     "login": "Войти",
     "register": "Регистрация",
     "logout": "Выйти",
-    "language": "Язык"
+    "language": "Язык",
+    "lightMode": "Светлая тема",
+    "darkMode": "Тёмная тема"
   },
   "home": {
     "title": "Pokegrammys 2026",
