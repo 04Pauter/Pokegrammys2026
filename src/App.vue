@@ -1,11 +1,11 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.js'
-import Menubar from 'primevue/menubar'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const { t, locale } = useI18n()
 
@@ -43,58 +43,78 @@ function setLocale(loc) {
   localStorage.setItem('locale', loc)
 }
 
-const languages = [
+const langMenu = ref()
+const langItems = [
   { label: 'Català', command: () => setLocale('ca') },
-  { separator: true },
   { label: 'Castellano', command: () => setLocale('es') },
-  { separator: true },
   { label: 'English', command: () => setLocale('en') },
-  { separator: true },
   { label: 'Русский', command: () => setLocale('ru') },
 ]
 
+function toggleLang(event) {
+  langMenu.value.toggle(event)
+}
+
 /* --- Menu --- */
 const themeIcon = computed(() => currentTheme.value === 'dark' ? 'pi pi-sun' : 'pi pi-moon')
-const themeLabel = computed(() => currentTheme.value === 'dark' ? t('nav.lightMode') : t('nav.darkMode'))
 
-const items = computed(() => {
+function isActive(path) {
+  return route.path === path
+}
+
+const navItems = computed(() => {
   if (!auth.isAuthenticated) {
     return [
-      { label: t('nav.login'), icon: 'pi pi-unlock', command: () => router.push('/') },
-      { label: t('nav.register'), icon: 'pi pi-user-plus', command: () => router.push('/Register') },
-      { separator: true },
-      { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
-      { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
+      { label: t('nav.login'), icon: 'pi pi-unlock', class: isActive('/') ? 'active-route' : '', command: () => router.push('/') },
+      { label: t('nav.register'), icon: 'pi pi-user-plus', class: isActive('/Register') ? 'active-route' : '', command: () => router.push('/Register') },
     ]
   }
 
-  const menuItems = [
-    { label: t('nav.home'), icon: 'pi pi-home', command: () => router.push('/Home') },
-    { label: t('nav.pokecuento'), icon: 'pi pi-youtube', command: () => router.push('/Pokecuento') },
-    { label: t('nav.pokefilm'), icon: 'pi pi-video', command: () => router.push('/Pokefilm') },
+  const items = [
+    { label: t('nav.home'), icon: 'pi pi-home', class: isActive('/Home') ? 'active-route' : '', command: () => router.push('/Home') },
+    { label: t('nav.pokecuento'), icon: 'pi pi-youtube', class: isActive('/Pokecuento') ? 'active-route' : '', command: () => router.push('/Pokecuento') },
+    { label: t('nav.pokefilm'), icon: 'pi pi-video', class: isActive('/Pokefilm') ? 'active-route' : '', command: () => router.push('/Pokefilm') },
   ]
 
   if (auth.isAdmin) {
-    menuItems.push({ label: t('nav.admin'), icon: 'pi pi-cog', command: () => router.push('/Admin') })
+    items.push({ label: t('nav.admin'), icon: 'pi pi-cog', class: isActive('/Admin') ? 'active-route' : '', command: () => router.push('/Admin') })
   }
 
-  menuItems.push(
-    { separator: true },
-    { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
-    { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
-    { label: t('nav.logout'), icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) },
-  )
-
-  return menuItems
+  return items
 })
+
+function logout() {
+  auth.logout().then(() => router.push('/'))
+}
 </script>
 
 <template>
-  <Menubar :model="items" breakpoint="0" />
+  <Menubar :model="navItems" breakpoint="0">
+    <template #start>
+      <div class="navbar-brand" @click="router.push('/Home')" tabindex="0" role="button">
+        <img src="/Pokegrammys.ico" alt="" class="brand-icon" />
+        <span class="brand-text">Pokegrammys</span>
+      </div>
+    </template>
+    <template #end>
+      <div class="navbar-actions">
+        <Menu ref="langMenu" :model="langItems" popup />
+        <Button icon="pi pi-globe" @click="toggleLang" text rounded class="nav-action-btn" />
+        <Button :icon="themeIcon" @click="toggleTheme" text rounded class="nav-action-btn" />
+        <Button
+          v-if="auth.isAuthenticated"
+          icon="pi pi-sign-out"
+          @click="logout"
+          text
+          rounded
+          class="nav-action-btn"
+        />
+      </div>
+    </template>
+  </Menubar>
   <router-view v-slot="{ Component }">
     <Transition name="page" mode="out-in">
       <component :is="Component" />
     </Transition>
   </router-view>
 </template>
-
