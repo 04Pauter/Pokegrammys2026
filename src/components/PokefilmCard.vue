@@ -4,8 +4,8 @@
     :class="{ selected }"
     @click="$emit('select')"
   >
-    <div class="card-image">
-      <img :src="pokefilm.imagenurl" :alt="pokefilm.nombre" />
+    <div class="card-image" :class="{ loaded: imageLoaded }">
+      <img :src="pokefilm.imagenurl" :alt="pokefilm.nombre" @load="imageLoaded = true" />
       <button class="info-btn" @click.stop="goToInfo" :title="$t('info.viewInfo')">&#8505;</button>
     </div>
     <div class="card-body">
@@ -16,6 +16,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -32,6 +33,7 @@ const props = defineProps({
 defineEmits(['select'])
 
 const router = useRouter()
+const imageLoaded = ref(false)
 
 function goToInfo() {
   router.push({ name: 'PokefilmInfo', params: { id: props.pokefilm.id } })
