@@ -2306,6 +2306,8 @@ button:disabled,
    ADMIN CRUD
    ============================================================ */
 .admin-view {
+  flex: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2347,11 +2349,14 @@ button:disabled,
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  transition: border-color var(--transition);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .crud-section:hover {
   border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .crud-header {
@@ -2368,6 +2373,18 @@ button:disabled,
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--color-text);
+  display: flex;
+  align-items: center;
+}
+
+.crud-header h2::before {
+  content: '';
+  width: 3px;
+  height: 1.1em;
+  background: var(--color-accent);
+  border-radius: 2px;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
 .crud-form {
@@ -2376,6 +2393,13 @@ button:disabled,
   border-radius: var(--radius-md);
   padding: 1.15rem;
   margin-bottom: 1rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  animation: formSlideIn 0.25s ease both;
+}
+
+@keyframes formSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .crud-form h3 {
@@ -2399,6 +2423,12 @@ button:disabled,
 }
 
 /* CRUD Table */
+.crud-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-sm);
+}
+
 .crud-table {
   width: 100%;
   border-collapse: collapse;
@@ -2419,14 +2449,19 @@ button:disabled,
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.crud-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.crud-table tbody tr:hover {
+  background: rgba(212, 168, 67, 0.05);
 }
 
 .crud-table tbody tr {
   transition: background var(--transition);
-}
-
-.crud-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
 }
 
 .crud-table td.actions {
@@ -2475,7 +2510,7 @@ button:disabled,
 .tab-bar button.active {
   background: var(--color-bg-card);
   color: var(--color-accent);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 4px rgba(212, 168, 67, 0.2);
 }
 
 .tab-bar button:hover:not(.active) {
@@ -2516,6 +2551,10 @@ button:disabled,
 
 .error-msg {
   color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid rgba(217, 68, 82, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -2523,8 +2562,11 @@ button:disabled,
 
 .success {
   color: var(--color-success);
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
-  margin: 0;
   font-weight: 600;
 }
 
@@ -2645,7 +2687,11 @@ button:disabled,
    LIGHT THEME – Hardcoded-color overrides
    ============================================================ */
 :root[data-theme="light"] .crud-table tbody tr:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(212, 168, 67, 0.06);
+}
+
+:root[data-theme="light"] .crud-table tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.02);
 }
 
 :root[data-theme="light"] .info-btn {

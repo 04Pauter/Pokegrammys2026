@@ -22,32 +22,34 @@
 
     <div v-if="error" class="error-msg">{{ error }}</div>
 
-    <table v-if="items.length" class="crud-table">
-      <thead>
-        <tr>
-          <th>{{ $t('admin.pokecuentos.id') }}</th>
-          <th>{{ $t('admin.pokecuentos.name') }}</th>
-          <th>{{ $t('admin.pokecuentos.author') }}</th>
-          <th>{{ $t('admin.pokecuentos.image') }}</th>
-          <th>{{ $t('admin.pokecuentos.actions') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in items" :key="item.id">
-          <td>{{ item.id }}</td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.autor }}</td>
-          <td>
-            <img v-if="item.imagenurl" :src="item.imagenurl" :alt="item.nombre" class="thumb" />
-          </td>
-          <td class="actions">
-            <button @click="openEdit(item)">{{ $t('admin.pokecuentos.edit') }}</button>
-            <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.pokecuentos.delete') }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else class="empty">{{ $t('admin.pokecuentos.empty') }}</p>
+    <div class="crud-table-wrap">
+      <table v-if="items.length" class="crud-table">
+        <thead>
+          <tr>
+            <th>{{ $t('admin.pokecuentos.id') }}</th>
+            <th>{{ $t('admin.pokecuentos.name') }}</th>
+            <th>{{ $t('admin.pokecuentos.author') }}</th>
+            <th>{{ $t('admin.pokecuentos.image') }}</th>
+            <th>{{ $t('admin.pokecuentos.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in items" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.autor }}</td>
+            <td>
+              <img v-if="item.imagenurl" :src="item.imagenurl" :alt="item.nombre" class="thumb" />
+            </td>
+            <td class="actions">
+              <button @click="openEdit(item)">{{ $t('admin.pokecuentos.edit') }}</button>
+              <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.pokecuentos.delete') }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="empty">{{ $t('admin.pokecuentos.empty') }}</p>
+    </div>
   </div>
 </template>
 
