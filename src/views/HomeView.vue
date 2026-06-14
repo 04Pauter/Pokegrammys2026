@@ -43,17 +43,24 @@
       </router-link>
     </div>
 
-    <!-- Scroll indicator -->
-    <div class="scroll-hint">
-      <div class="scroll-mouse">
-        <div class="scroll-wheel" />
-      </div>
+    <!-- Category cards -->
+    <div class="home-categories">
+      <router-link to="/Pokecuento" class="category-card">
+        <div class="category-card-icon">📺</div>
+        <h3>Pokecuentos</h3>
+        <p>{{ $t('home.subtitle') || 'Els millors Pokecuentos de la comunitat' }}</p>
+      </router-link>
+      <router-link to="/Pokefilm" class="category-card">
+        <div class="category-card-icon">🎬</div>
+        <h3>Pokefilms</h3>
+        <p>{{ $t('home.subtitle') || 'Els millors Pokefilms de la comunitat' }}</p>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onUnmounted } from 'vue'
 
 const homeRef = ref(null)
 

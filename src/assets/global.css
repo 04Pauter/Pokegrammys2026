@@ -500,6 +500,32 @@ button:disabled,
   opacity: 0.7;
 }
 
+/* --- Auth background orbs --- */
+.auth-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+
+.auth-orb-1 {
+  width: 300px;
+  height: 300px;
+  top: -10%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(140, 100, 255, 0.1), transparent 70%);
+  animation: authOrbDrift 12s ease-in-out infinite alternate;
+}
+
+.auth-orb-2 {
+  width: 280px;
+  height: 280px;
+  bottom: 5%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.07), transparent 70%);
+  animation: authOrbDrift 14s ease-in-out 2s infinite alternate-reverse;
+}
+
 .auth-orb-3 {
   width: 250px;
   height: 250px;
@@ -530,16 +556,24 @@ button:disabled,
   animation: orbFloat 8s ease-in-out infinite alternate;
 }
 
-.home-view::after {
-  content: '';
+.auth-particle {
   position: absolute;
-  bottom: -30%;
-  right: -10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(120, 80, 220, 0.12), transparent 70%);
+  background: radial-gradient(circle, var(--color-accent-light), transparent 70%);
+  border-radius: 50%;
   pointer-events: none;
-  animation: orbFloat 10s ease-in-out 2s infinite alternate-reverse;
+  opacity: 0.4;
+  animation: orbFloat 12s ease-in-out infinite alternate;
+}
+
+.auth-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 420px;
+  width: 100%;
 }
 
 @keyframes orbFloat {
@@ -612,7 +646,8 @@ button:disabled,
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
 }
 
@@ -797,6 +832,35 @@ button:disabled,
 .input-group input:focus ~ .input-glow {
   width: 100%;
   left: 0;
+}
+
+.input-group input[type="password"],
+.input-group input[type="text"]:has(~ .input-glow) {
+  padding-right: 2.8rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 0.85rem;
+  transition: color var(--transition);
+  z-index: 2;
+  line-height: 1;
+  width: auto;
+}
+
+.password-toggle:hover {
+  color: var(--color-accent);
+  background: none;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: none;
 }
 
 /* --- Auth button --- */
@@ -1155,42 +1219,85 @@ button:disabled,
   transform: translateX(4px);
 }
 
-/* --- Scroll hint --- */
-.scroll-hint {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
+/* --- Home categories --- */
+.home-categories {
+  position: relative;
   z-index: 1;
-  animation: scrollHintFade 0.6s ease 1.5s both;
-}
-
-@keyframes scrollHintFade {
-  from { opacity: 0; }
-  to   { opacity: 0.5; }
-}
-
-.scroll-mouse {
-  width: 22px;
-  height: 34px;
-  border: 2px solid var(--color-text-dim);
-  border-radius: 12px;
   display: flex;
+  gap: 1.5rem;
   justify-content: center;
-  padding-top: 6px;
+  flex-wrap: wrap;
+  max-width: 700px;
+  width: 100%;
+  animation: subtitleFadeIn 0.6s ease 1.1s both;
 }
 
-.scroll-wheel {
-  width: 3px;
-  height: 8px;
-  background: var(--color-accent);
-  border-radius: 3px;
-  animation: scrollBounce 1.8s ease-in-out infinite;
+.category-card {
+  flex: 1;
+  min-width: 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  background: rgba(20, 20, 30, 0.5);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(212, 168, 67, 0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform var(--transition), box-shadow var(--transition),
+              border-color var(--transition);
 }
 
-@keyframes scrollBounce {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50%      { transform: translateY(6px); opacity: 0.3; }
+.category-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 168, 67, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35),
+              0 0 24px rgba(212, 168, 67, 0.1);
+  color: var(--color-text);
+}
+
+.category-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(212, 168, 67, 0.1);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.category-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--color-text), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.category-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.category-card:hover h3 {
+  background: linear-gradient(135deg, var(--color-accent-light), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ============================================================
@@ -1638,11 +1745,6 @@ button:disabled,
   animation: spin 1.2s linear infinite reverse;
 }
 
-@keyframes popIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
 /* ============================================================
    TITLE ANIMATIONS
    ============================================================ */
@@ -1702,90 +1804,6 @@ button:disabled,
 .page-enter-from {
   opacity: 0;
   transform: translateY(6px);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-12px);
-}
-
-/* ============================================================
-   STATE TRANSITIONS  (loading ↔ voting ↔ done)
-   ============================================================ */
-.state-fade-enter-active,
-.state-fade-leave-active {
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-.state-fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px) scale(0.98);
-}
-
-.state-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.98);
-}
-
-/* ============================================================
-   TITLE ANIMATIONS
-   ============================================================ */
-@keyframes titleFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes titleShimmer {
-  0%, 100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
-}
-
-@keyframes accentBarGrow {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 48px;
-    opacity: 1;
-  }
-}
-
-@keyframes categoryPulse {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  60% {
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* ============================================================
-   PAGE TRANSITIONS  (Vue Router <Transition>)
-   ============================================================ */
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(12px);
 }
 
 .page-leave-to {
@@ -2672,6 +2690,17 @@ button:disabled,
   .crud-table th,
   .crud-table td {
     padding: 0.45rem 0.5rem;
+  }
+
+  .home-categories {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .category-card {
+    min-width: 100%;
+    max-width: 100%;
+    padding: 1.5rem 1.25rem;
   }
 }
 
