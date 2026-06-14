@@ -16,6 +16,7 @@
         }"
       />
     </div>
+    <div class="voting-noise" />
     <div
       class="orb orb-gold"
       :style="{ transform: `translate(${orbGold.x}px, ${orbGold.y}px)` }"
@@ -28,15 +29,20 @@
     <!-- Header -->
     <header class="page-header">
       <button class="back-btn" v-if="votingPhase === 'voting' && currentCategoryIndex > 0" @click="goBack">
-        &larr; {{ $t('voting.back') }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ $t('voting.back') }}
       </button>
+
       <div class="header-badge" v-if="votingPhase === 'voting'">
         <span class="badge-dot" />
         {{ typeLabel }}
       </div>
-      <h1 class="voting-hero-title">
-        <span class="title-line">Poke</span><span class="title-line title-line-sub">grammys</span>
-      </h1>
+      <div class="voting-title-row">
+        <img class="voting-title-icon" src="/Pokegrammys.ico" alt="" />
+        <h1 class="voting-hero-title">Pokegrammys</h1>
+      </div>
       <p class="subtitle">{{ $t('voting.byValery') }}</p>
     </header>
 
@@ -49,32 +55,22 @@
 
       <!-- VOTING -->
       <div v-else-if="votingPhase === 'voting'" key="voting" class="voting-content">
-        <!-- Progress Steps -->
-        <div class="progress-steps">
-          <div
-            v-for="(cat, i) in categories"
-            :key="cat.id"
-            class="step-wrapper"
-          >
-            <div
-              class="step-dot"
-              :class="{
-                completed: i < currentCategoryIndex,
-                active: i === currentCategoryIndex,
-                pending: i > currentCategoryIndex
-              }"
-            >
-              <svg v-if="i < currentCategoryIndex" class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span v-else class="step-number">{{ i + 1 }}</span>
-            </div>
-            <div v-if="i < categories.length - 1" class="step-connector">
-              <div class="step-connector-fill" :class="{ filled: i < currentCategoryIndex }" />
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-bar-container">
+            <div class="progress-bar-bg">
+              <div
+                class="progress-bar-fill"
+                :style="{ width: progressPercent + '%' }"
+              />
+              <div class="progress-bar-glow" :style="{ left: progressPercent + '%' }" />
             </div>
           </div>
+          <div class="progress-info">
+            <span class="progress-step-label">{{ currentCategoryIndex + 1 }} / {{ categories.length }}</span>
+            <span class="progress-category-name">{{ currentCategory.nombre }}</span>
+          </div>
         </div>
-        <p class="progress-text">{{ $t('voting.categoryProgress', { n: currentCategoryIndex + 1, total: categories.length }) }}</p>
 
         <Transition name="state-fade" mode="out-in">
           <div v-if="errorMessage" key="error" class="error-message">{{ errorMessage }}</div>
@@ -83,17 +79,21 @@
         <Transition name="category-slide" mode="out-in">
           <div :key="currentCategoryIndex" class="category-section">
             <div class="category-header">
-              <div class="category-accent-bar" />
-              <h2>{{ currentCategory.nombre }}</h2>
+              <div class="category-header-inner">
+                <div class="category-accent-bar" />
+                <h2>{{ currentCategory.nombre }}</h2>
+                <span class="category-count">{{ nominees.length }} nominats</span>
+              </div>
             </div>
 
             <div class="cards-grid">
               <VotingCard
-                v-for="item in nominees"
+                v-for="(item, index) in nominees"
                 :key="item.id"
                 :nominee="item"
                 :selected="selectedNomineeId === item.id"
                 :info-route-name="infoRouteName"
+                :position="index + 1"
                 @select="selectedNomineeId = item.id"
               />
             </div>
@@ -103,6 +103,7 @@
         <div class="vote-actions">
           <button
             class="vote-btn"
+            :class="{ 'vote-btn-ready': selectedNomineeId }"
             :disabled="!selectedNomineeId"
             @click="submitVote"
           >
@@ -110,6 +111,9 @@
               {{ currentCategoryIndex === categories.length - 1 ? $t('voting.finish') : $t('voting.vote') }}
             </span>
             <span class="vote-btn-shine" />
+            <svg v-if="selectedNomineeId" class="vote-btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
         </div>
       </div>
@@ -121,20 +125,27 @@
           <div v-for="c in confettiPieces" :key="c.id" class="confetti-piece" :style="confettiStyle(c)" />
         </div>
 
+        <!-- Expanding rings -->
+        <div class="done-rings">
+          <div class="done-ring done-ring-1" />
+          <div class="done-ring done-ring-2" />
+          <div class="done-ring done-ring-3" />
+        </div>
+
         <div class="done-icon-wrapper">
-          <div class="done-ring done-ring-outer" />
-          <div class="done-ring done-ring-inner" />
           <div class="done-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <img class="done-icon-img" src="/Pokegrammys.ico" alt="" />
           </div>
         </div>
+
         <h2 class="done-title">{{ $t('voting.completed') }}</h2>
         <p class="done-subtitle">{{ $t('voting.thanks', { year: new Date().getFullYear() }) }}</p>
+
         <router-link to="/Home" class="done-home-btn">
-          {{ $t('voting.backHome') || "Tornar a l'inici" }}
-          <span class="cta-arrow">→</span>
+          <span>{{ $t('voting.backHome') || "Tornar a l'inici" }}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </router-link>
       </div>
     </Transition>
@@ -178,6 +189,11 @@ const infoRouteName = computed(() => props.type === 'pokeserie' ? 'PokecuentoInf
 const typeLabel = computed(() => props.type === 'pokeserie' ? 'Pokeserie' : 'Pokefilm')
 
 const currentCategory = computed(() => categories.value[currentCategoryIndex.value])
+
+const progressPercent = computed(() => {
+  if (categories.value.length === 0) return 0
+  return ((currentCategoryIndex.value + 1) / categories.value.length) * 100
+})
 
 async function loadCategory(index) {
   const category = categories.value[index]
@@ -284,9 +300,9 @@ watch(() => props.type, () => {
 
 /* --- Ambient particles --- */
 const viewRef = ref(null)
-const particles = Array.from({ length: 14 }, (_, i) => ({
+const particles = Array.from({ length: 18 }, (_, i) => ({
   id: i,
-  size: 2 + Math.random() * 4,
+  size: 2 + Math.random() * 5,
   x: Math.random() * 100,
   y: Math.random() * 100,
   duration: 10 + Math.random() * 18,
@@ -309,25 +325,29 @@ function onMouseMove(e) {
 }
 
 /* --- Confetti --- */
-const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
+const confettiColors = ['#d4a843', '#f0cc6a', '#ffffff', '#c9a035', '#ffe082', '#8b5cf6', '#ec4899', '#06b6d4']
+const confettiPieces = Array.from({ length: 75 }, (_, i) => ({
   id: i,
-  x: 40 + Math.random() * 20,
+  x: 10 + Math.random() * 80,
   rotation: Math.random() * 360,
-  scale: 0.5 + Math.random() * 0.8,
-  delay: Math.random() * 0.6,
-  duration: 1.8 + Math.random() * 1.5,
-  drift: (Math.random() - 0.5) * 200,
-  color: ['#d4a843', '#f0cc6a', '#ffffff', '#c9a035', '#ffe082'][Math.floor(Math.random() * 5)],
-  shape: Math.random() > 0.5 ? 'circle' : 'rect'
+  scale: 0.4 + Math.random() * 0.9,
+  delay: Math.random() * 0.8,
+  duration: 2 + Math.random() * 2,
+  drift: (Math.random() - 0.5) * 300,
+  color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+  shape: ['circle', 'rect', 'star'][Math.floor(Math.random() * 3)]
 }))
 
 function confettiStyle(c) {
+  const shapeStyles = {
+    circle: { width: '8px', height: '8px', borderRadius: '50%' },
+    rect: { width: '6px', height: '12px', borderRadius: '2px' },
+    star: { width: '10px', height: '10px', borderRadius: '2px', clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }
+  }
   return {
     left: c.x + '%',
     backgroundColor: c.color,
-    width: c.shape === 'circle' ? '8px' : '6px',
-    height: c.shape === 'circle' ? '8px' : '10px',
-    borderRadius: c.shape === 'circle' ? '50%' : '2px',
+    ...shapeStyles[c.shape],
     transform: `rotate(${c.rotation}deg) scale(${c.scale})`,
     animationDelay: c.delay + 's',
     animationDuration: c.duration + 's',
