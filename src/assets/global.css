@@ -3,7 +3,24 @@
    ============================================================ */
 
 /* --- CSS Custom Properties ---------------------------------- */
+
+/* Shared tokens (theme-agnostic) */
 :root {
+  --radius-sm:         6px;
+  --radius-md:         10px;
+  --radius-lg:         16px;
+  --transition:        0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --color-accent:      #d4a843;
+  --color-accent-light:#f0cc6a;
+  --color-accent-glow: rgba(212, 168, 67, 0.35);
+  --color-danger:      #d94452;
+  --color-success:     #34d399;
+  --transition-theme:  0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark theme (default) */
+:root,
+:root[data-theme="dark"] {
   --color-bg:          #08080d;
   --color-bg-raised:   #101018;
   --color-bg-card:     #14141e;
@@ -13,19 +30,49 @@
   --color-text:        #e8e8f0;
   --color-text-muted:  #7a7a90;
   --color-text-dim:    #55556a;
-  --color-accent:      #d4a843;
-  --color-accent-light:#f0cc6a;
-  --color-accent-glow: rgba(212, 168, 67, 0.35);
-  --color-danger:      #d94452;
   --color-danger-bg:   #2a1215;
-  --color-success:     #34d399;
-  --radius-sm:         6px;
-  --radius-md:         10px;
-  --radius-lg:         16px;
   --shadow-sm:         0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md:         0 4px 16px rgba(0, 0, 0, 0.5);
   --shadow-lg:         0 8px 32px rgba(0, 0, 0, 0.6);
-  --transition:        0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light theme */
+:root[data-theme="light"] {
+  --color-bg:          #f5f5f8;
+  --color-bg-raised:   #ffffff;
+  --color-bg-card:     #ffffff;
+  --color-bg-input:    #f0f0f4;
+  --color-border:      #d8d8e0;
+  --color-border-hover:#b8b8c8;
+  --color-text:        #1a1a2e;
+  --color-text-muted:  #5a5a70;
+  --color-text-dim:    #8a8a9a;
+  --color-danger-bg:   #fef2f2;
+  --shadow-sm:         0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:         0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg:         0 8px 32px rgba(0, 0, 0, 0.12);
+  color-scheme: light;
+}
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Smooth theme transitions */
+body,
+.p-menubar,
+.login-form,
+.register-form,
+.pokecuento-card,
+.pokefilm-card,
+.info-view,
+.admin-view,
+.crud-section {
+  transition: background var(--transition-theme),
+              color var(--transition-theme),
+              border-color var(--transition-theme),
+              box-shadow var(--transition-theme);
 }
 
 /* --- Reset & Base ------------------------------------------- */
@@ -50,6 +97,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background var(--transition-theme), color var(--transition-theme);
 }
 
 #app {
@@ -268,6 +316,23 @@ button:disabled,
   flex: 1;
   padding: 2rem;
   gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-view::before,
+.register-view::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-accent-glow), transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite alternate;
 }
 
 .login-view h1,
@@ -278,6 +343,7 @@ button:disabled,
   letter-spacing: 0.06em;
   color: var(--color-text);
   position: relative;
+  animation: titleFadeIn 0.6s ease both;
 }
 
 .login-view h1::after,
@@ -289,6 +355,7 @@ button:disabled,
   background: var(--color-accent);
   border-radius: 2px;
   margin: 0.6rem auto 0;
+  animation: accentBarGrow 0.4s ease 0.3s both;
 }
 
 .login-form,
@@ -300,10 +367,34 @@ button:disabled,
   width: 100%;
   max-width: 360px;
   background: var(--color-bg-raised);
-  border: 1px solid var(--color-border);
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
   padding: 2rem 1.5rem;
   box-shadow: var(--shadow-md);
+  position: relative;
+  background-clip: padding-box;
+}
+
+.login-form::before,
+.register-form::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    var(--color-border),
+    var(--color-accent) 50%,
+    var(--color-border)
+  );
+  z-index: -1;
+  opacity: 0.4;
+  transition: opacity 0.4s ease;
+}
+
+.login-form:hover::before,
+.register-form:hover::before {
+  opacity: 0.7;
 }
 
 .login-form input,
@@ -333,11 +424,29 @@ button:disabled,
   top: -40%;
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
+  width: 700px;
+  height: 700px;
   background: radial-gradient(circle, var(--color-accent-glow), transparent 70%);
-  opacity: 0.15;
+  opacity: 0.18;
   pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite alternate;
+}
+
+.home-view::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(120, 80, 220, 0.12), transparent 70%);
+  pointer-events: none;
+  animation: orbFloat 10s ease-in-out 2s infinite alternate-reverse;
+}
+
+@keyframes orbFloat {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -20px) scale(1.08); }
 }
 
 .home-view h1 {
@@ -346,11 +455,19 @@ button:disabled,
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.1;
-  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-text) 0%,
+    var(--color-accent) 40%,
+    var(--color-accent-light) 60%,
+    var(--color-text) 100%
+  );
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   position: relative;
+  animation: titleFadeIn 0.6s ease both, titleShimmer 4s ease-in-out 0.6s infinite;
 }
 
 .cta-link {
@@ -358,21 +475,35 @@ button:disabled,
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 2.5rem;
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
   color: var(--color-bg) !important;
   font-weight: 700;
   border-radius: var(--radius-md);
   font-size: 1rem;
   letter-spacing: 0.02em;
-  transition: background var(--transition), transform var(--transition),
-    box-shadow var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition);
   box-shadow: 0 2px 16px var(--color-accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: btnShimmer 3s ease-in-out infinite;
+}
+
+@keyframes btnShimmer {
+  0%   { background-position: 150% 0; }
+  100% { background-position: -150% 0; }
 }
 
 .cta-link:hover {
-  background: var(--color-accent-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 24px var(--color-accent-glow);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 32px rgba(212, 168, 67, 0.45);
   color: var(--color-bg) !important;
 }
 
@@ -385,6 +516,26 @@ button:disabled,
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.pokecuento-view::before,
+.pokefilm-view::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(180deg, rgba(212, 168, 67, 0.04) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pokecuento-view > *,
+.pokefilm-view > * {
+  position: relative;
+  z-index: 1;
 }
 
 .page-header {
@@ -401,10 +552,18 @@ button:disabled,
   margin: 0;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-text) 0%,
+    var(--color-accent) 40%,
+    var(--color-accent-light) 60%,
+    var(--color-text) 100%
+  );
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: titleFadeIn 0.6s ease both, titleShimmer 4s ease-in-out 0.6s infinite;
 }
 
 .back-btn {
@@ -457,6 +616,26 @@ button:disabled,
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
   border-radius: 3px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 8px;
+  background: var(--color-accent-light);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-accent-glow), 0 0 16px var(--color-accent-glow);
+  animation: progressGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes progressGlow {
+  0%   { opacity: 0.6; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
 }
 
 .progress-text {
@@ -479,6 +658,7 @@ button:disabled,
   color: var(--color-text);
   margin: 0;
   letter-spacing: 0.01em;
+  animation: categoryPulse 0.5s ease both;
 }
 
 /* Cards Grid */
@@ -503,22 +683,30 @@ button:disabled,
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-bg);
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  transition: opacity var(--transition), transform var(--transition),
-    box-shadow var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition);
   box-shadow: 0 2px 16px var(--color-accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.vote-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: btnShimmer 3s ease-in-out infinite;
 }
 
 .vote-btn:hover:not(:disabled) {
-  opacity: 1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 24px var(--color-accent-glow);
-  background: var(--color-accent-light);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 32px rgba(212, 168, 67, 0.45);
 }
 
 .vote-btn:disabled {
@@ -540,9 +728,33 @@ button:disabled,
   gap: 1rem;
 }
 
+.loading-state p {
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+.done-state h2 {
+  color: var(--color-text);
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  animation: titleFadeIn 0.5s ease 0.3s both;
+}
+
+.done-state p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  animation: titleFadeIn 0.5s ease 0.5s both;
+}
+
 .done-icon {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
   color: var(--color-bg);
@@ -551,26 +763,21 @@ button:disabled,
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  box-shadow: 0 4px 24px var(--color-accent-glow);
-  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 0 4px rgba(212, 168, 67, 0.15),
+              0 4px 24px var(--color-accent-glow),
+              0 0 48px rgba(212, 168, 67, 0.2);
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+             doneGlow 2s ease-in-out 0.5s infinite alternate;
+}
+
+@keyframes doneGlow {
+  0%   { box-shadow: 0 0 0 4px rgba(212, 168, 67, 0.15), 0 4px 24px var(--color-accent-glow), 0 0 48px rgba(212, 168, 67, 0.2); }
+  100% { box-shadow: 0 0 0 8px rgba(212, 168, 67, 0.08), 0 4px 32px var(--color-accent-glow), 0 0 64px rgba(212, 168, 67, 0.3); }
 }
 
 @keyframes popIn {
   0% { transform: scale(0.5); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-.done-state h2 {
-  color: var(--color-text);
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-.done-state p {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
 }
 
 /* Error Message */
@@ -585,20 +792,124 @@ button:disabled,
   text-align: center;
   font-size: 0.875rem;
   font-weight: 600;
+  animation: errorShake 0.4s ease;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
 }
 
 /* Spinner */
 .spinner {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 3px solid var(--color-border);
   border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
+  position: relative;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 2px solid transparent;
+  border-top-color: rgba(212, 168, 67, 0.2);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite reverse;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   TITLE ANIMATIONS
+   ============================================================ */
+@keyframes titleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleShimmer {
+  0%, 100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+@keyframes accentBarGrow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 48px;
+    opacity: 1;
+  }
+}
+
+@keyframes categoryPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   PAGE TRANSITIONS  (Vue Router <Transition>)
+   ============================================================ */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+/* ============================================================
+   STATE TRANSITIONS  (loading ↔ voting ↔ done)
+   ============================================================ */
+.state-fade-enter-active,
+.state-fade-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.state-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+.state-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
 }
 
 /* ============================================================
@@ -614,19 +925,64 @@ button:disabled,
     box-shadow var(--transition);
   cursor: pointer;
   position: relative;
+  opacity: 0;
+  animation: cardEnter 0.45s ease forwards;
+}
+
+/* Staggered entrance – up to 12 cards */
+.pokecuento-card:nth-child(1),  .pokefilm-card:nth-child(1)  { animation-delay: 0.05s; }
+.pokecuento-card:nth-child(2),  .pokefilm-card:nth-child(2)  { animation-delay: 0.1s; }
+.pokecuento-card:nth-child(3),  .pokefilm-card:nth-child(3)  { animation-delay: 0.15s; }
+.pokecuento-card:nth-child(4),  .pokefilm-card:nth-child(4)  { animation-delay: 0.2s; }
+.pokecuento-card:nth-child(5),  .pokefilm-card:nth-child(5)  { animation-delay: 0.25s; }
+.pokecuento-card:nth-child(6),  .pokefilm-card:nth-child(6)  { animation-delay: 0.3s; }
+.pokecuento-card:nth-child(7),  .pokefilm-card:nth-child(7)  { animation-delay: 0.35s; }
+.pokecuento-card:nth-child(8),  .pokefilm-card:nth-child(8)  { animation-delay: 0.4s; }
+.pokecuento-card:nth-child(9),  .pokefilm-card:nth-child(9)  { animation-delay: 0.45s; }
+.pokecuento-card:nth-child(10), .pokefilm-card:nth-child(10) { animation-delay: 0.5s; }
+.pokecuento-card:nth-child(11), .pokefilm-card:nth-child(11) { animation-delay: 0.55s; }
+.pokecuento-card:nth-child(12), .pokefilm-card:nth-child(12) { animation-delay: 0.6s; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .pokecuento-card:hover,
 .pokefilm-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px) scale(1.01);
   border-color: var(--color-accent);
-  box-shadow: 0 8px 28px rgba(212, 168, 67, 0.12);
+  box-shadow: 0 12px 32px rgba(212, 168, 67, 0.18);
+  opacity: 1;
+}
+
+.pokecuento-card:active,
+.pokefilm-card:active {
+  transform: translateY(-2px) scale(0.99);
+  transition-duration: 0.1s;
+  opacity: 1;
 }
 
 .pokecuento-card.selected,
 .pokefilm-card.selected {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px var(--color-accent), 0 8px 28px rgba(212, 168, 67, 0.2);
+  box-shadow: 0 0 0 2px var(--color-accent),
+              0 8px 28px rgba(212, 168, 67, 0.25),
+              0 0 48px rgba(212, 168, 67, 0.1);
+  opacity: 1;
+  animation: cardSelected 0.35s ease both;
+}
+
+@keyframes cardSelected {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .card-image {
@@ -637,17 +993,50 @@ button:disabled,
   background: var(--color-bg);
 }
 
+/* Skeleton loading */
+.card-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg) 25%,
+    var(--color-border) 50%,
+    var(--color-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.card-image.loaded::before {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.card-image.loaded img {
+  opacity: 1;
 }
 
 .pokecuento-card:hover .card-image img,
 .pokefilm-card:hover .card-image img {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
 .card-body {
@@ -660,6 +1049,12 @@ button:disabled,
   font-weight: 700;
   color: var(--color-text);
   line-height: 1.3;
+  transition: color var(--transition);
+}
+
+.pokecuento-card:hover .card-title,
+.pokefilm-card:hover .card-title {
+  color: var(--color-accent);
 }
 
 .card-author {
@@ -686,13 +1081,15 @@ button:disabled,
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background var(--transition), transform var(--transition);
+  transition: background var(--transition), transform var(--transition),
+    box-shadow var(--transition);
   z-index: 2;
 }
 
 .info-btn:hover {
-  background: rgba(212, 168, 67, 0.2);
-  transform: scale(1.1);
+  background: rgba(212, 168, 67, 0.25);
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.4);
 }
 
 /* ============================================================
@@ -720,6 +1117,7 @@ button:disabled,
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  animation: titleFadeIn 0.5s ease both;
 }
 
 .info-content {
@@ -818,6 +1216,7 @@ button:disabled,
   letter-spacing: 0.04em;
   color: var(--color-text);
   position: relative;
+  animation: titleFadeIn 0.6s ease both;
 }
 
 .admin-view h1::after {
@@ -828,6 +1227,7 @@ button:disabled,
   background: var(--color-accent);
   border-radius: 2px;
   margin: 0.5rem auto 0;
+  animation: accentBarGrow 0.4s ease 0.3s both;
 }
 
 .admin-grid {
@@ -1094,4 +1494,50 @@ button:disabled,
   .crud-table td {
     padding: 0.45rem 0.5rem;
   }
+}
+
+/* ============================================================
+   LIGHT THEME – Hardcoded-color overrides
+   ============================================================ */
+:root[data-theme="light"] .crud-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+:root[data-theme="light"] .info-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(212, 168, 67, 0.4);
+}
+
+:root[data-theme="light"] .info-btn:hover {
+  background: rgba(212, 168, 67, 0.15);
+}
+
+:root[data-theme="light"] .card-image {
+  background: var(--color-bg-input);
+}
+
+:root[data-theme="light"] .home-view::before {
+  opacity: 0.08;
+}
+
+:root[data-theme="light"] .back-btn:hover {
+  background: rgba(212, 168, 67, 0.12) !important;
+}
+
+:root[data-theme="light"] .vote-btn {
+  box-shadow: 0 2px 16px rgba(212, 168, 67, 0.25);
+}
+
+:root[data-theme="light"] .pokecuento-card:hover,
+:root[data-theme="light"] .pokefilm-card:hover {
+  box-shadow: 0 8px 28px rgba(212, 168, 67, 0.15);
+}
+
+:root[data-theme="light"] .done-icon {
+  box-shadow: 0 4px 24px rgba(212, 168, 67, 0.3);
+}
+
+:root[data-theme="light"] .spinner {
+  border-color: var(--color-border);
+  border-top-color: var(--color-accent);
 }

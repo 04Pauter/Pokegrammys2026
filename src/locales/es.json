@@ -7,7 +7,9 @@
     "login": "Iniciar sesión",
     "register": "Registro",
     "logout": "Cerrar sesión",
-    "language": "Idioma"
+    "language": "Idioma",
+    "lightMode": "Modo claro",
+    "darkMode": "Modo oscuro"
   },
   "home": {
     "title": "Pokegrammys 2026",

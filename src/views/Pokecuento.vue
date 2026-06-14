@@ -6,49 +6,53 @@
       <p class="subtitle">{{ $t('voting.byValery') }}</p>
     </header>
 
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>{{ $t('voting.loading') }}</p>
-    </div>
-
-    <template v-else-if="votingPhase === 'voting'">
-      <div class="progress-bar">
-        <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
-      </div>
-      <p class="progress-text">{{ $t('voting.categoryProgress', { n: currentCategoryIndex + 1, total: categories.length }) }}</p>
-
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-      <div class="category-header">
-        <h2>{{ currentCategory.nombre }}</h2>
+    <Transition name="state-fade" mode="out-in">
+      <div v-if="loading" key="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ $t('voting.loading') }}</p>
       </div>
 
-      <div class="cards-grid">
-        <PokecuentoCard
-          v-for="item in pokecuentos"
-          :key="item.id"
-          :pokecuento="item"
-          :selected="selectedNomineeId === item.id"
-          @select="selectedNomineeId = item.id"
-        />
+      <div v-else-if="votingPhase === 'voting'" key="voting" class="voting-content">
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
+        </div>
+        <p class="progress-text">{{ $t('voting.categoryProgress', { n: currentCategoryIndex + 1, total: categories.length }) }}</p>
+
+        <Transition name="state-fade" mode="out-in">
+          <div v-if="errorMessage" key="error" class="error-message">{{ errorMessage }}</div>
+        </Transition>
+
+        <div class="category-header">
+          <h2 :key="currentCategory.nombre">{{ currentCategory.nombre }}</h2>
+        </div>
+
+        <div class="cards-grid">
+          <PokecuentoCard
+            v-for="item in pokecuentos"
+            :key="item.id"
+            :pokecuento="item"
+            :selected="selectedNomineeId === item.id"
+            @select="selectedNomineeId = item.id"
+          />
+        </div>
+
+        <div class="vote-actions">
+          <button
+            class="vote-btn"
+            :disabled="!selectedNomineeId"
+            @click="submitVote"
+          >
+            {{ currentCategoryIndex === categories.length - 1 ? $t('voting.finish') : $t('voting.vote') }}
+          </button>
+        </div>
       </div>
 
-      <div class="vote-actions">
-        <button
-          class="vote-btn"
-          :disabled="!selectedNomineeId"
-          @click="submitVote"
-        >
-          {{ currentCategoryIndex === categories.length - 1 ? $t('voting.finish') : $t('voting.vote') }}
-        </button>
+      <div v-else-if="votingPhase === 'done'" key="done" class="done-state">
+        <div class="done-icon">&#10003;</div>
+        <h2>{{ $t('voting.completed') }}</h2>
+        <p>{{ $t('voting.thanks', { year: new Date().getFullYear() }) }}</p>
       </div>
-    </template>
-
-    <div v-else-if="votingPhase === 'done'" class="done-state">
-      <div class="done-icon">&#10003;</div>
-      <h2>{{ $t('voting.completed') }}</h2>
-      <p>{{ $t('voting.thanks', { year: new Date().getFullYear() }) }}</p>
-    </div>
+    </Transition>
   </div>
 </template>
 
