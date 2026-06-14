@@ -46,7 +46,10 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { supabase } from '@/lib/supabase.js'
+
+const { t } = useI18n()
 
 const TABLES = {
   pokeserie: {
@@ -85,7 +88,7 @@ const nomMap = computed(() => {
   return m
 })
 
-function t() {
+function config() {
   return TABLES[tab.value]
 }
 
@@ -99,9 +102,9 @@ function nomineeName(id) {
 
 async function loadAll() {
   const [catRes, nomRes, nomiRes] = await Promise.all([
-    supabase.from(t().categories).select('*').order('id'),
-    supabase.from(t().nominees).select('*').order('id'),
-    supabase.from(t().nominats).select('*'),
+    supabase.from(config().categories).select('*').order('id'),
+    supabase.from(config().nominees).select('*').order('id'),
+    supabase.from(config().nominats).select('*'),
   ])
 
   if (catRes.error) { error.value = catRes.error.message; return }
@@ -111,8 +114,8 @@ async function loadAll() {
   categories.value = catRes.data ?? []
   nominees.value = nomRes.data ?? []
   nominations.value = (nomiRes.data ?? []).map(n => ({
-    categoria_id: n[t().categoryKey],
-    nominee_id: n[t().nomineeKey],
+    categoria_id: n[config().categoryKey],
+    nominee_id: n[config().nomineeKey],
   }))
 }
 
@@ -126,12 +129,16 @@ watch(tab, () => {
 async function addNomination() {
   error.value = ''
   const payload = {
-    [t().categoryKey]: selectedCategory.value,
-    [t().nomineeKey]: selectedNominee.value,
+    [config().categoryKey]: selectedCategory.value,
+    [config().nomineeKey]: selectedNominee.value,
   }
-  const { error: err } = await supabase.from(t().nominats).insert(payload)
+  const { error: err } = await supabase.from(config().nominats).insert(payload)
   if (err) {
-    error.value = err.message
+    if (err.code === '23505') {
+      error.value = t('admin.nominations.duplicate')
+    } else {
+      error.value = err.message
+    }
   } else {
     selectedCategory.value = ''
     selectedNominee.value = ''
@@ -141,10 +148,10 @@ async function addNomination() {
 
 async function removeNomination(categoriaId, nomineeId) {
   const { error: err } = await supabase
-    .from(t().nominats)
+    .from(config().nominats)
     .delete()
-    .eq(t().categoryKey, categoriaId)
-    .eq(t().nomineeKey, nomineeId)
+    .eq(config().categoryKey, categoriaId)
+    .eq(config().nomineeKey, nomineeId)
   if (err) {
     error.value = err.message
   } else {
@@ -155,21 +162,3 @@ async function removeNomination(categoriaId, nomineeId) {
 onMounted(loadAll)
 </script>
 
-<style scoped>
-.nom-form {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.nom-form select {
-  max-width: 320px;
-}
-
-.nom-form button {
-  white-space: nowrap;
-}
-</style>

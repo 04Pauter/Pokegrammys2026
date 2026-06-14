@@ -132,7 +132,11 @@ async function submitAllVotes() {
   const { error } = await supabase.from('votacion_pokeserie').insert(inserts)
 
   if (error) {
-    errorMessage.value = t('voting.errorSending')
+    if (error.code === '23505') {
+      errorMessage.value = t('voting.alreadyVoted')
+    } else {
+      errorMessage.value = t('voting.errorSending')
+    }
     return
   }
 

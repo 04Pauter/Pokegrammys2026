@@ -22,29 +22,3 @@ import NominatsCrud from '@/components/admin/NominatsCrud.vue'
 const auth = useAuthStore()
 </script>
 
-<style scoped>
-.admin-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
-.admin-view h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-}
-
-.admin-grid {
-  width: 100%;
-  max-width: 960px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-</style>
