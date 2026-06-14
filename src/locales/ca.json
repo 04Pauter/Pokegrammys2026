@@ -36,7 +36,7 @@
     "completed": "Votació completada!",
     "thanks": "Gràcies per votar als Pokegrammys {year}",
     "errorSending": "Error al enviar els vots. Torna-ho a intentar.",
-    "alreadyVoted": "Ja has votat anteriorment"
+    "alreadyVoted": "Ja has votat en alguna categoria anteriorment. Torna-ho a intentar."
   },
   "info": {
     "back": "Tornar",
@@ -80,7 +80,8 @@
       "nominee": "Nominat",
       "actions": "Accions",
       "delete": "Eliminar",
-      "empty": "No hi ha nominacions."
+      "empty": "No hi ha nominacions.",
+      "duplicate": "Aquest nominat ja està assignat a aquesta categoria."
     },
     "pokecuentos": {
       "title": "Pokecuentos",

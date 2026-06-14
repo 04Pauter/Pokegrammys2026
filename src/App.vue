@@ -59,12 +59,3 @@ const items = computed(() => {
   <router-view />
 </template>
 
-<style scoped>
-/* Espaiat extra entre items del submenu d'idiomes al Menubar */
-:deep(.p-menubar-submenu .p-menubar-item) {
-  margin-bottom: 6px;
-}
-:deep(.p-menubar-submenu .p-menubar-item:last-child) {
-  margin-bottom: 0;
-}
-</style>

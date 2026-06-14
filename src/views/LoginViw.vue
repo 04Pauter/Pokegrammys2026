@@ -40,31 +40,3 @@ const handleLogin = async () => {
   }
 }
 </script>
-
-<style scoped>
-.login-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  text-align: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
-.login-view h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-</style>

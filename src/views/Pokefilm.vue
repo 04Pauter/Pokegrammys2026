@@ -141,13 +141,11 @@ async function submitAllVotes() {
     .insert(inserts)
 
   if (error) {
-
-    errorMessage.value = t('voting.errorSending') + '\n'
-
     if (error.code === '23505') {
-      errorMessage.value += t('voting.alreadyVoted')
+      errorMessage.value = t('voting.alreadyVoted')
+    } else {
+      errorMessage.value = t('voting.errorSending')
     }
-
     console.error('Error submitting votes:', error)
     return
   }
