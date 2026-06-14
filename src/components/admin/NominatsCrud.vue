@@ -22,25 +22,27 @@
 
     <div v-if="error" class="error-msg">{{ error }}</div>
 
-    <table v-if="nominations.length" class="crud-table">
-      <thead>
-        <tr>
-          <th>{{ $t('admin.nominations.category') }}</th>
-          <th>{{ tab === 'pokeserie' ? $t('admin.nominations.selectPokecuento') : $t('admin.nominations.selectPokefilm') }}</th>
-          <th>{{ $t('admin.nominations.actions') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(nom, i) in nominations" :key="i">
-          <td>{{ categoryName(nom.categoria_id) }}</td>
-          <td>{{ nomineeName(nom.nominee_id) }}</td>
-          <td class="actions">
-            <button class="btn-danger" @click="removeNomination(nom.categoria_id, nom.nominee_id)">{{ $t('admin.nominations.delete') }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else class="empty">{{ $t('admin.nominations.empty') }}</p>
+    <div class="crud-table-wrap">
+      <table v-if="nominations.length" class="crud-table">
+        <thead>
+          <tr>
+            <th>{{ $t('admin.nominations.category') }}</th>
+            <th>{{ tab === 'pokeserie' ? $t('admin.nominations.selectPokecuento') : $t('admin.nominations.selectPokefilm') }}</th>
+            <th>{{ $t('admin.nominations.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(nom, i) in nominations" :key="i">
+            <td>{{ categoryName(nom.categoria_id) }}</td>
+            <td>{{ nomineeName(nom.nominee_id) }}</td>
+            <td class="actions">
+              <button class="btn-danger" @click="removeNomination(nom.categoria_id, nom.nominee_id)">{{ $t('admin.nominations.delete') }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="empty">{{ $t('admin.nominations.empty') }}</p>
+    </div>
   </div>
 </template>
 

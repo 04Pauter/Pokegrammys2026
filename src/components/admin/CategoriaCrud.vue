@@ -22,26 +22,28 @@
 
     <div v-if="error" class="error-msg">{{ error }}</div>
 
-    <table v-if="items.length" class="crud-table">
-      <thead>
-        <tr>
-          <th>{{ $t('admin.categories.id') }}</th>
-          <th>{{ $t('admin.categories.name') }}</th>
-          <th>{{ $t('admin.categories.actions') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in items" :key="item.id">
-          <td>{{ item.id }}</td>
-          <td>{{ item.nombre }}</td>
-          <td class="actions">
-            <button @click="openEdit(item)">{{ $t('admin.categories.edit') }}</button>
-            <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.categories.delete') }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else class="empty">{{ $t('admin.categories.empty') }}</p>
+    <div class="crud-table-wrap">
+      <table v-if="items.length" class="crud-table">
+        <thead>
+          <tr>
+            <th>{{ $t('admin.categories.id') }}</th>
+            <th>{{ $t('admin.categories.name') }}</th>
+            <th>{{ $t('admin.categories.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in items" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.nombre }}</td>
+            <td class="actions">
+              <button @click="openEdit(item)">{{ $t('admin.categories.edit') }}</button>
+              <button class="btn-danger" @click="confirmDelete(item)">{{ $t('admin.categories.delete') }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="empty">{{ $t('admin.categories.empty') }}</p>
+    </div>
   </div>
 </template>
 

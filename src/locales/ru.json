@@ -13,11 +13,15 @@
   },
   "home": {
     "title": "Pokegrammys 2026",
-    "voteCta": "Голосовать"
+    "voteCta": "Голосовать",
+    "year": "2026",
+    "subtitle": "Лучшие Pokecuentos и Pokefilms от сообщества"
   },
   "auth": {
     "titleLogin": "Вход",
     "titleRegister": "Регистрация",
+    "loginSubtitle": "Войдите в свой аккаунт",
+    "registerSubtitle": "Создайте аккаунт",
     "email": "Email",
     "password": "Пароль",
     "confirmPassword": "Повторите пароль",
@@ -26,7 +30,9 @@
     "creatingAccount": "Создание аккаунта...",
     "createAccount": "Создать аккаунт",
     "passwordsDontMatch": "Пароли не совпадают",
-    "accountCreated": "Аккаунт создан! Проверьте email для подтверждения."
+    "accountCreated": "Аккаунт создан! Проверьте email для подтверждения.",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?"
   },
   "voting": {
     "back": "Назад",
@@ -38,7 +44,8 @@
     "completed": "Голосование завершено!",
     "thanks": "Спасибо за участие в Pokegrammys {year}",
     "errorSending": "Ошибка при отправке голосов. Попробуйте снова.",
-    "alreadyVoted": "Вы уже голосовали в одной из предыдущих категорий. Попробуйте снова."
+    "alreadyVoted": "Вы уже голосовали в одной из предыдущих категорий. Попробуйте снова.",
+    "backHome": "Вернуться на главную"
   },
   "info": {
     "back": "Назад",
