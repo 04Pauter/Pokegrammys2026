@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.js'
 
@@ -52,6 +52,10 @@ const langItems = [
 ]
 
 /* --- Menu --- */
+function isActive(path) {
+  return route.path === path
+}
+
 const themeIcon = computed(() => currentTheme.value === 'dark' ? 'pi pi-sun' : 'pi pi-moon')
 const themeLabel = computed(() => currentTheme.value === 'dark' ? t('nav.lightMode') : t('nav.darkMode'))
 
@@ -61,29 +65,29 @@ const items = computed(() => {
       { label: t('nav.login'), icon: 'pi pi-unlock', command: () => router.push('/') },
       { label: t('nav.register'), icon: 'pi pi-user-plus', command: () => router.push('/Register') },
       { separator: true },
-      { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
+      { label: t('nav.language'), icon: 'pi pi-globe', items: langItems },
       { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
     ]
   }
 
-  const items = [
+  const authenticatedItems = [
     { label: t('nav.home'), icon: 'pi pi-home', class: isActive('/Home') ? 'active-route' : '', command: () => router.push('/Home') },
     { label: t('nav.pokecuento'), icon: 'pi pi-youtube', class: isActive('/Pokecuento') ? 'active-route' : '', command: () => router.push('/Pokecuento') },
     { label: t('nav.pokefilm'), icon: 'pi pi-video', class: isActive('/Pokefilm') ? 'active-route' : '', command: () => router.push('/Pokefilm') },
   ]
 
   if (auth.isAdmin) {
-    items.push({ label: t('nav.admin'), icon: 'pi pi-cog', class: isActive('/Admin') ? 'active-route' : '', command: () => router.push('/Admin') })
+    authenticatedItems.push({ label: t('nav.admin'), icon: 'pi pi-cog', class: isActive('/Admin') ? 'active-route' : '', command: () => router.push('/Admin') })
   }
 
-  menuItems.push(
+  authenticatedItems.push(
     { separator: true },
-    { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
+    { label: t('nav.language'), icon: 'pi pi-globe', items: langItems },
     { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
     { label: t('nav.logout'), icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) },
   )
 
-  return menuItems
+  return authenticatedItems
 })
 
 function logout() {
