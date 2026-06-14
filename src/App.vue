@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.js'
 
@@ -51,22 +51,18 @@ const langItems = [
   { label: 'Русский', command: () => setLocale('ru') },
 ]
 
-function toggleLang(event) {
-  langMenu.value.toggle(event)
-}
-
 /* --- Menu --- */
 const themeIcon = computed(() => currentTheme.value === 'dark' ? 'pi pi-sun' : 'pi pi-moon')
+const themeLabel = computed(() => currentTheme.value === 'dark' ? t('nav.lightMode') : t('nav.darkMode'))
 
-function isActive(path) {
-  return route.path === path
-}
-
-const navItems = computed(() => {
+const items = computed(() => {
   if (!auth.isAuthenticated) {
     return [
-      { label: t('nav.login'), icon: 'pi pi-unlock', class: isActive('/') ? 'active-route' : '', command: () => router.push('/') },
-      { label: t('nav.register'), icon: 'pi pi-user-plus', class: isActive('/Register') ? 'active-route' : '', command: () => router.push('/Register') },
+      { label: t('nav.login'), icon: 'pi pi-unlock', command: () => router.push('/') },
+      { label: t('nav.register'), icon: 'pi pi-user-plus', command: () => router.push('/Register') },
+      { separator: true },
+      { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
+      { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
     ]
   }
 
@@ -80,7 +76,14 @@ const navItems = computed(() => {
     items.push({ label: t('nav.admin'), icon: 'pi pi-cog', class: isActive('/Admin') ? 'active-route' : '', command: () => router.push('/Admin') })
   }
 
-  return items
+  menuItems.push(
+    { separator: true },
+    { label: t('nav.language'), icon: 'pi pi-globe', items: languages },
+    { label: themeLabel.value, icon: themeIcon.value, command: toggleTheme },
+    { label: t('nav.logout'), icon: 'pi pi-sign-out', command: () => auth.logout().then(() => router.push('/')) },
+  )
+
+  return menuItems
 })
 
 function logout() {
@@ -89,29 +92,7 @@ function logout() {
 </script>
 
 <template>
-  <Menubar :model="navItems" breakpoint="0">
-    <template #start>
-      <div class="navbar-brand" @click="router.push('/Home')" tabindex="0" role="button">
-        <img src="/Pokegrammys.ico" alt="" class="brand-icon" />
-        <span class="brand-text">Pokegrammys</span>
-      </div>
-    </template>
-    <template #end>
-      <div class="navbar-actions">
-        <Menu ref="langMenu" :model="langItems" popup />
-        <Button icon="pi pi-globe" @click="toggleLang" text rounded class="nav-action-btn" />
-        <Button :icon="themeIcon" @click="toggleTheme" text rounded class="nav-action-btn" />
-        <Button
-          v-if="auth.isAuthenticated"
-          icon="pi pi-sign-out"
-          @click="logout"
-          text
-          rounded
-          class="nav-action-btn"
-        />
-      </div>
-    </template>
-  </Menubar>
+  <Menubar :model="items" breakpoint="0" />
   <router-view v-slot="{ Component }">
     <Transition name="page" mode="out-in">
       <component :is="Component" />
