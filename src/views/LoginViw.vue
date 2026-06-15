@@ -23,7 +23,10 @@
           <span class="input-glow" />
         </div>
         <div class="input-group">
-          <input v-model="password" :placeholder="$t('auth.password')" type="password" required />
+          <input v-model="password" :placeholder="$t('auth.password')" :type="showPassword ? 'text' : 'password'" required />
+          <button type="button" class="password-toggle" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Amagar contrasenya' : 'Mostrar contrasenya'">
+            <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" />
+          </button>
           <span class="input-glow" />
         </div>
         <Transition name="state-fade">
@@ -52,6 +55,7 @@ const router = useRouter()
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const loading = ref(false)
 const errorMsg = ref('')
 
