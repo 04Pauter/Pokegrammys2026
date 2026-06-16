@@ -3,6 +3,7 @@
     "home": "Главная",
     "pokecuento": "Pokecuento",
     "pokefilm": "Pokefilm",
+    "resultats": "Результаты",
     "admin": "Админ",
     "login": "Войти",
     "register": "Регистрация",
@@ -58,6 +59,14 @@
     "video": "Видео",
     "notFound": "Контент не найден",
     "viewInfo": "Посмотреть информацию"
+  },
+  "results": {
+    "badge": "Результаты",
+    "subtitle": "Результаты голосования Pokegrammys",
+    "loading": "Загрузка результатов...",
+    "votes": "голосов",
+    "totalVotes": "Всего",
+    "empty": "Результаты пока недоступны."
   },
   "admin": {
     "title": "Панель управления",

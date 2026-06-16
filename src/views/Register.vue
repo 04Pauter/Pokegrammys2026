@@ -55,6 +55,8 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase.js'
 
+const { t } = useI18n()
+
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -81,8 +83,6 @@ function particleStyle(i) {
 const handleRegister = async () => {
   errorMsg.value = ''
   successMsg.value = ''
-
-  const { t } = useI18n()
 
   if (password.value !== confirmPassword.value) {
     errorMsg.value = t('auth.passwordsDontMatch')
