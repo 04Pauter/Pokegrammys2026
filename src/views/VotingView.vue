@@ -276,6 +276,7 @@ async function loadData() {
   const { data: categoriesData, error: categoriesError } = await supabase
     .from(tables.value.categories)
     .select('*')
+    .order('id')
 
   if (categoriesError) {
     console.error('Error fetching categories:', categoriesError)

@@ -32,7 +32,10 @@
     "passwordsDontMatch": "Las contraseñas no coinciden",
     "accountCreated": "¡Cuenta creada! Revisa tu email para confirmarla.",
     "noAccount": "¿No tienes cuenta?",
-    "hasAccount": "¿Ya tienes cuenta?"
+    "hasAccount": "¿Ya tienes cuenta?",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "loginRequired": "Debes iniciar sesión para acceder"
   },
   "voting": {
     "back": "Anterior",

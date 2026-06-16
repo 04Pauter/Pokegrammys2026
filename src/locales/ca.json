@@ -32,7 +32,10 @@
     "passwordsDontMatch": "Les contrasenyes no coincideixen",
     "accountCreated": "Compte creat! Revisa el teu email per confirmar-lo.",
     "noAccount": "No tens compte?",
-    "hasAccount": "Ja tens compte?"
+    "hasAccount": "Ja tens compte?",
+    "login": "Iniciar sessió",
+    "register": "Registrar-se",
+    "loginRequired": "Has d'iniciar sessió per accedir"
   },
   "voting": {
     "back": "Anterior",

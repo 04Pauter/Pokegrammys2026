@@ -42,7 +42,7 @@ onMounted(() => {
 
 /* --- Locale --- */
 const locales = [
-  { code: 'ca', label: 'Català', flag: '🇪🇸' },
+  { code: 'ca', label: 'Català', flagSvg: '<svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="14" rx="2" fill="#FCDD09"/><rect y="0" width="20" height="2" fill="#DA291C"/><rect y="4" width="20" height="2" fill="#DA291C"/><rect y="8" width="20" height="2" fill="#DA291C"/><rect y="12" width="20" height="2" fill="#DA291C"/></svg>' },
   { code: 'es', label: 'Castellano', flag: '🇪🇸' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
@@ -143,7 +143,8 @@ function closeMobileMenu() {
       <!-- Language selector -->
       <div class="nav-dropdown" ref="langDropdownRef">
         <button class="nav-action-btn" @click.stop="toggleLangDropdown" :title="t('nav.language')">
-          <span class="lang-flag">{{ currentLocale.flag }}</span>
+          <span class="lang-flag" v-if="currentLocale.flagSvg" v-html="currentLocale.flagSvg"></span>
+          <span class="lang-flag" v-else>{{ currentLocale.flag }}</span>
           <span class="lang-code desktop-only">{{ currentLocale.code.toUpperCase() }}</span>
           <svg class="dropdown-arrow" :class="{ open: showLangDropdown }" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M6 9l6 6 6-6"/>
@@ -158,7 +159,8 @@ function closeMobileMenu() {
               :class="{ active: locale === loc.code }"
               @click="setLocale(loc.code)"
             >
-              <span class="dropdown-item-flag">{{ loc.flag }}</span>
+              <span class="dropdown-item-flag" v-if="loc.flagSvg" v-html="loc.flagSvg"></span>
+              <span class="dropdown-item-flag" v-else>{{ loc.flag }}</span>
               <span class="dropdown-item-label">{{ loc.label }}</span>
               <svg v-if="locale === loc.code" class="dropdown-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <path d="M5 13l4 4L19 7"/>
