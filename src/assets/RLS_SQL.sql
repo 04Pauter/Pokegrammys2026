@@ -192,24 +192,53 @@ EXECUTE FUNCTION handle_new_user();
 
 
 -- =========================================================
--- VIEWS PÚBLIQUES DE RESULTATS
+-- FUNCTIONS SECURITY DEFINER (bypass RLS per a resultats)
+-- =========================================================
+
+CREATE OR REPLACE FUNCTION get_resultados_pokeserie()
+RETURNS TABLE(categoria_id INT, pokecuento_id INT, votos BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    v.categoria_id,
+    v.pokecuento_id,
+    COUNT(*)::BIGINT AS votos
+  FROM votacion_pokeserie v
+  GROUP BY v.categoria_id, v.pokecuento_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_resultados_pokefilm()
+RETURNS TABLE(categoria_id INT, pokefilm_id INT, votos BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    v.categoria_id,
+    v.pokefilm_id,
+    COUNT(*)::BIGINT AS votos
+  FROM votacion_pokefilm v
+  GROUP BY v.categoria_id, v.pokefilm_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION get_resultados_pokeserie() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION get_resultados_pokefilm() TO anon, authenticated;
+
+-- =========================================================
+-- VIEWS PÚBLIQUES DE RESULTATS (basades en les functions)
 -- =========================================================
 
 CREATE OR REPLACE VIEW resultados_pokeserie AS
-SELECT
-  categoria_id,
-  pokecuento_id,
-  COUNT(*) AS votos
-FROM votacion_pokeserie
-GROUP BY categoria_id, pokecuento_id;
+SELECT * FROM get_resultados_pokeserie();
 
 CREATE OR REPLACE VIEW resultados_pokefilm AS
-SELECT
-  categoria_id,
-  pokefilm_id,
-  COUNT(*) AS votos
-FROM votacion_pokefilm
-GROUP BY categoria_id, pokefilm_id;
+SELECT * FROM get_resultados_pokefilm();
 
 
 -- =========================================================
@@ -299,3 +328,46 @@ WITH CHECK (is_admin());
 CREATE POLICY "Admins can delete nominados_pokefilm"
 ON nominados_pokefilm FOR DELETE TO authenticated
 USING (is_admin());
+
+--//////////////////////////////////////////////////////////////////////////////////
+-- 1. Functions SECURITY DEFINER
+CREATE OR REPLACE FUNCTION get_resultados_pokeserie()
+RETURNS TABLE(categoria_id INT, pokecuento_id INT, votos BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+RETURN QUERY
+SELECT v.categoria_id, v.pokecuento_id, COUNT(*)::BIGINT
+FROM votacion_pokeserie v
+GROUP BY v.categoria_id, v.pokecuento_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION get_resultados_pokefilm()
+RETURNS TABLE(categoria_id INT, pokefilm_id INT, votos BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+RETURN QUERY
+SELECT v.categoria_id, v.pokefilm_id, COUNT(*)::BIGINT
+FROM votacion_pokefilm v
+GROUP BY v.categoria_id, v.pokefilm_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION get_resultados_pokeserie() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION get_resultados_pokefilm() TO anon, authenticated;
+
+-- 2. DROP + CREATE (no es pot canviar l'estructura amb REPLACE)
+DROP VIEW IF EXISTS resultados_pokeserie;
+CREATE VIEW resultados_pokeserie AS
+SELECT * FROM get_resultados_pokeserie();
+
+DROP VIEW IF EXISTS resultados_pokefilm;
+CREATE VIEW resultados_pokefilm AS
+SELECT * FROM get_resultados_pokefilm();
+
+GRANT SELECT ON resultados_pokeserie TO anon, authenticated;
+GRANT SELECT ON resultados_pokefilm TO anon, authenticated;
