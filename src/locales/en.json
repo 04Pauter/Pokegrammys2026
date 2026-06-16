@@ -32,7 +32,10 @@
     "passwordsDontMatch": "Passwords do not match",
     "accountCreated": "Account created! Check your email to verify.",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "login": "Login",
+    "register": "Register",
+    "loginRequired": "You must log in to access"
   },
   "voting": {
     "back": "Back",

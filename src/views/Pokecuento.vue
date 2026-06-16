@@ -151,6 +151,7 @@ onMounted(async () => {
   const { data: categoriesData, error: categoriesError } = await supabase
     .from('categorias_pokeserie')
     .select('*')
+    .order('id')
 
   if (categoriesError) {
     console.error('Error fetching categories:', categoriesError)
