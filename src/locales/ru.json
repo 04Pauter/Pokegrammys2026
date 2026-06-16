@@ -32,7 +32,10 @@
     "passwordsDontMatch": "Пароли не совпадают",
     "accountCreated": "Аккаунт создан! Проверьте email для подтверждения.",
     "noAccount": "Нет аккаунта?",
-    "hasAccount": "Уже есть аккаунт?"
+    "hasAccount": "Уже есть аккаунт?",
+    "login": "Войти",
+    "register": "Зарегистрироваться",
+    "loginRequired": "Необходимо войти для доступа"
   },
   "voting": {
     "back": "Назад",
