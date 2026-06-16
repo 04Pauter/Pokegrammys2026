@@ -66,7 +66,9 @@
     "loading": "Carregant resultats...",
     "votes": "vots",
     "totalVotes": "Total",
-    "empty": "No hi ha resultats disponibles encara."
+    "empty": "No hi ha resultats disponibles encara.",
+    "winner": "GUANYADOR",
+    "totalVotesLabel": "VOTS TOTALS"
   },
   "admin": {
     "title": "Panell d'Administració",
