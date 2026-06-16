@@ -66,9 +66,10 @@
         <Transition name="state-fade" mode="out-in">
           <div :key="activeTab" class="categories-list">
             <div
-              v-for="cat in currentResults"
+              v-for="(cat, catIdx) in currentResults"
               :key="cat.id"
               class="category-result-card"
+              :style="{ animationDelay: catIdx * 0.1 + 's' }"
             >
               <div class="category-result-header">
                 <div class="category-accent-bar" />
@@ -77,15 +78,18 @@
               </div>
 
               <div class="category-result-body">
-                <!-- Pie Chart -->
+                <!-- Pie Chart + Legend -->
                 <div class="pie-chart-wrapper">
-                  <div
-                    class="pie-chart"
-                    :style="{ background: cat.pieGradient }"
-                  >
-                    <div class="pie-center">
-                      <span class="pie-center-number">{{ cat.totalVotos }}</span>
-                      <span class="pie-center-label">{{ $t('results.totalVotes') }}</span>
+                  <div class="pie-chart-container">
+                    <div
+                      class="pie-chart"
+                      :style="{ background: cat.pieGradient }"
+                    >
+                      <div class="pie-glow" />
+                      <div class="pie-center">
+                        <span class="pie-center-number">{{ getAnimatedTotal(cat.id) }}</span>
+                        <span class="pie-center-label">{{ $t('results.totalVotesLabel') }}</span>
+                      </div>
                     </div>
                   </div>
                   <div class="pie-legend">
@@ -95,36 +99,72 @@
                       class="legend-item"
                     >
                       <span class="legend-dot" :style="{ backgroundColor: pieColors[i % pieColors.length] }" />
+                      <img v-if="nom.imagenurl" :src="nom.imagenurl" class="legend-thumb" :alt="nom.nombre" />
                       <span class="legend-label">{{ nom.nombre }}</span>
+                      <span class="legend-percent">{{ nom.percent }}%</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- Progress bars -->
-                <div class="nominees-bars">
-                  <div
-                    v-for="(nom, i) in cat.nominees"
-                    :key="nom.id"
-                    class="nominee-bar-row"
-                    :class="{ winner: i === 0 && cat.totalVotos > 0 }"
-                  >
-                    <div class="nominee-bar-info">
-                      <div class="nominee-bar-left">
-                        <span v-if="i === 0 && cat.totalVotos > 0" class="winner-badge">👑</span>
-                        <span class="nominee-name">{{ nom.nombre }}</span>
+                <!-- Winner Spotlight + Progress bars -->
+                <div class="nominees-right">
+                  <!-- Winner Spotlight -->
+                  <div v-if="cat.nominees.length > 0 && cat.totalVotos > 0" class="winner-spotlight">
+                    <div class="winner-spotlight-inner">
+                      <div class="winner-confetti">
+                        <div v-for="c in winnerConfetti" :key="c.id" class="winner-confetti-piece" :style="winnerConfettiStyle(c)" />
                       </div>
-                      <span class="nominee-percent">{{ nom.percent }}%</span>
+                      <div class="winner-medal-wrapper">
+                        <span class="winner-medal">🥇</span>
+                      </div>
+                      <div class="winner-image-wrapper">
+                        <img :src="cat.nominees[0].imagenurl" class="winner-image" :alt="cat.nominees[0].nombre" />
+                        <div class="winner-image-glow" />
+                      </div>
+                      <div class="winner-info">
+                        <span class="winner-label">{{ $t('results.winner') }}</span>
+                        <h3 class="winner-name">{{ cat.nominees[0].nombre }}</h3>
+                        <p class="winner-author">{{ cat.nominees[0].autor }}</p>
+                      </div>
+                      <div class="winner-votes">
+                        <span class="winner-votes-number">{{ cat.nominees[0].votos }}</span>
+                        <span class="winner-votes-label">{{ $t('results.votes') }}</span>
+                      </div>
                     </div>
-                    <div class="bar-track">
-                      <div
-                        class="bar-fill"
-                        :style="{
-                          width: nom.percent + '%',
-                          backgroundColor: pieColors[i % pieColors.length]
-                        }"
-                      />
+                  </div>
+
+                  <!-- Progress bars -->
+                  <div class="nominees-bars">
+                    <div
+                      v-for="(nom, i) in cat.nominees"
+                      :key="nom.id"
+                      class="nominee-bar-row"
+                      :class="{ winner: i === 0 && cat.totalVotos > 0 }"
+                      :style="{ animationDelay: 0.3 + i * 0.1 + 's' }"
+                    >
+                      <div class="nominee-bar-info">
+                        <div class="nominee-bar-left">
+                          <span v-if="i < 3 && cat.totalVotos > 0" class="medal-icon" :class="'medal-' + (i + 1)">{{ getMedal(i) }}</span>
+                          <img v-if="nom.imagenurl" :src="nom.imagenurl" class="nominee-thumb" :alt="nom.nombre" />
+                          <span class="nominee-name">{{ nom.nombre }}</span>
+                        </div>
+                        <span class="nominee-percent">{{ nom.percent }}%</span>
+                      </div>
+                      <div class="bar-track">
+                        <div
+                          class="bar-fill"
+                          :class="{ 'bar-winner': i === 0 && cat.totalVotos > 0 }"
+                          :style="{
+                            '--bar-width': nom.percent + '%',
+                            '--bar-color': pieColors[i % pieColors.length],
+                            animationDelay: 0.4 + i * 0.1 + 's'
+                          }"
+                        >
+                          <div class="bar-fill-shimmer" />
+                        </div>
+                      </div>
+                      <span class="nominee-votes">{{ nom.votos }} {{ $t('results.votes') }}</span>
                     </div>
-                    <span class="nominee-votes">{{ nom.votos }} {{ $t('results.votes') }}</span>
                   </div>
                 </div>
               </div>
@@ -141,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { ref, computed, onMounted, reactive, watch, nextTick } from 'vue'
 import { supabase } from '../lib/supabase.js'
 
 const activeTab = ref('pokeserie')
@@ -149,12 +189,37 @@ const loading = ref(true)
 const pokeserieResults = ref([])
 const pokefilmResults = ref([])
 
+/* --- Animated totals --- */
+const animatedTotals = reactive({})
+
+function getAnimatedTotal(catId) {
+  return animatedTotals[catId] ?? 0
+}
+
+function animateCountUp(catId, target, duration = 1200) {
+  const start = performance.now()
+  const from = animatedTotals[catId] ?? 0
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1)
+    const eased = 1 - Math.pow(1 - progress, 3)
+    animatedTotals[catId] = Math.round(from + (target - from) * eased)
+    if (progress < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+function getMedal(index) {
+  return ['🥇', '🥈', '🥉'][index] || ''
+}
+
+/* --- Pie Colors --- */
 const pieColors = [
   '#d4a843', '#8b5cf6', '#06b6d4', '#ec4899',
   '#34d399', '#f97316', '#6366f1', '#ef4444',
   '#14b8a6', '#eab308', '#a855f7', '#3b82f6'
 ]
 
+/* --- DB tables --- */
 const tablesMap = {
   pokeserie: {
     categories: 'categorias_pokeserie',
@@ -265,14 +330,23 @@ async function loadAll() {
   loading.value = true
   await Promise.all([loadResults('pokeserie'), loadResults('pokefilm')])
   loading.value = false
+
+  await nextTick()
+  currentResults.value.forEach(cat => {
+    animateCountUp(cat.id, cat.totalVotos)
+  })
 }
 
-watch(activeTab, (tab) => {
+watch(activeTab, async (tab) => {
   if (tab === 'pokeserie' && pokeserieResults.value.length === 0) {
-    loadResults('pokeserie')
+    await loadResults('pokeserie')
   } else if (tab === 'pokefilm' && pokefilmResults.value.length === 0) {
-    loadResults('pokefilm')
+    await loadResults('pokefilm')
   }
+  await nextTick()
+  currentResults.value.forEach(cat => {
+    animateCountUp(cat.id, cat.totalVotos)
+  })
 })
 
 onMounted(loadAll)
@@ -302,6 +376,32 @@ function onMouseMove(e) {
   orbPurple.x = cx * -20
   orbPurple.y = cy * -20
 }
+
+/* --- Winner Confetti --- */
+const winnerConfettiColors = ['#d4a843', '#f0cc6a', '#ffffff', '#c9a035', '#ffe082', '#8b5cf6', '#ec4899', '#06b6d4']
+const winnerConfetti = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  x: 5 + Math.random() * 90,
+  size: 4 + Math.random() * 6,
+  delay: Math.random() * 2,
+  duration: 2.5 + Math.random() * 2,
+  drift: (Math.random() - 0.5) * 120,
+  color: winnerConfettiColors[Math.floor(Math.random() * winnerConfettiColors.length)],
+  rotation: Math.random() * 360
+}))
+
+function winnerConfettiStyle(c) {
+  return {
+    left: c.x + '%',
+    width: c.size + 'px',
+    height: c.size + 'px',
+    backgroundColor: c.color,
+    animationDelay: c.delay + 's',
+    animationDuration: c.duration + 's',
+    '--drift': c.drift + 'px',
+    transform: `rotate(${c.rotation}deg)`
+  }
+}
 </script>
 
 <style scoped>
@@ -316,7 +416,7 @@ function onMouseMove(e) {
   z-index: 1;
 }
 
-/* --- Particles & Orbs (reuse from VotingView) --- */
+/* --- Particles & Orbs --- */
 .resultats-particles {
   position: fixed;
   inset: 0;
@@ -502,7 +602,7 @@ function onMouseMove(e) {
 
 /* --- Results Content --- */
 .results-content {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 0 1rem 4rem;
 }
@@ -515,11 +615,25 @@ function onMouseMove(e) {
   margin-bottom: 1.5rem;
   overflow: hidden;
   transition: border-color var(--transition), box-shadow var(--transition);
+  animation: resultsCardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .category-result-card:hover {
   border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), 0 0 30px rgba(212, 168, 67, 0.06);
+}
+
+@keyframes resultsCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .category-result-header {
@@ -558,7 +672,7 @@ function onMouseMove(e) {
 /* --- Body --- */
 .category-result-body {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: 1.5rem;
   padding: 1.5rem;
   align-items: start;
@@ -569,56 +683,102 @@ function onMouseMove(e) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+}
+
+.pie-chart-container {
+  position: relative;
 }
 
 .pie-chart {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  animation: pieReveal 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pieReveal {
+  from {
+    transform: scale(0.6) rotate(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.pie-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  animation: pieGlowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes pieGlowPulse {
+  0% { opacity: 0.4; transform: scale(0.95); }
+  100% { opacity: 0.8; transform: scale(1.05); }
 }
 
 .pie-center {
   position: absolute;
-  inset: 25%;
+  inset: 24%;
   background: var(--color-bg-card);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pie-center-number {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--color-text);
   line-height: 1;
+  animation: countReveal 0.6s ease 0.5s both;
+}
+
+@keyframes countReveal {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .pie-center-label {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   color: var(--color-text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
 }
 
+/* --- Pie Legend --- */
 .pie-legend {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.7rem;
+  gap: 8px;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   overflow: hidden;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+
+.legend-item:hover {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .legend-dot {
@@ -628,23 +788,226 @@ function onMouseMove(e) {
   flex-shrink: 0;
 }
 
+.legend-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+}
+
 .legend-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+}
+
+.legend-percent {
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+/* --- Nominees Right Section --- */
+.nominees-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* --- Winner Spotlight --- */
+.winner-spotlight {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(212, 168, 67, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  animation: spotlightReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@keyframes spotlightReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.winner-spotlight-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.winner-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.winner-confetti-piece {
+  position: absolute;
+  top: -8px;
+  border-radius: 2px;
+  animation: winnerConfettiFall var(--duration, 2.5s) ease-in var(--delay, 0s) forwards;
+}
+
+@keyframes winnerConfettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1) translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(40px) rotate(360deg) scale(0.8) translateX(var(--drift, 30px));
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(80px) rotate(720deg) scale(0.3) translateX(calc(var(--drift, 30px) * -0.5));
+    opacity: 0;
+  }
+}
+
+.winner-medal-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.winner-medal {
+  font-size: 2rem;
+  display: block;
+  animation: medalBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+
+@keyframes medalBounce {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.winner-image-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.winner-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent);
+  display: block;
+  animation: winnerImagePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes winnerImagePop {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.winner-image-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+  animation: winnerGlowPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes winnerGlowPulse {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+.winner-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.winner-label {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  background: rgba(212, 168, 67, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.winner-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.winner-author {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 2px 0 0;
+}
+
+.winner-votes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.winner-votes-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  line-height: 1;
+  animation: countReveal 0.6s ease 0.6s both;
+}
+
+.winner-votes-label {
+  font-size: 0.6rem;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 /* --- Progress Bars --- */
 .nominees-bars {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .nominee-bar-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  opacity: 0;
+  animation: barRowEnter 0.5s ease both;
+}
+
+@keyframes barRowEnter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .nominee-bar-row.winner {
@@ -660,38 +1023,111 @@ function onMouseMove(e) {
 .nominee-bar-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
-.winner-badge {
+.medal-icon {
   font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.medal-1 { animation: medalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both; }
+.medal-2 { animation: medalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both; }
+.medal-3 { animation: medalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s both; }
+
+.nominee-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.nominee-bar-row:hover .nominee-thumb {
+  border-color: var(--color-accent);
+  transform: scale(1.1);
+}
+
+.nominee-bar-row.winner .nominee-thumb {
+  border-color: var(--color-accent);
 }
 
 .nominee-name {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nominee-bar-row.winner .nominee-name {
+  color: var(--color-accent);
+  font-weight: 700;
 }
 
 .nominee-percent {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-accent);
+  flex-shrink: 0;
 }
 
 .bar-track {
   width: 100%;
-  height: 8px;
+  height: 10px;
   background: var(--color-bg-input);
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 5px;
+  position: relative;
   min-width: 2px;
+  background: var(--bar-color);
+  animation: barFill 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes barFill {
+  from { width: 0; }
+  to { width: var(--bar-width); }
+}
+
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  border-radius: inherit;
+}
+
+.bar-fill-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  animation: barShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes barShimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.bar-winner {
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.3);
 }
 
 .nominee-votes {
@@ -732,8 +1168,8 @@ function onMouseMove(e) {
   }
 
   .pie-chart {
-    width: 140px;
-    height: 140px;
+    width: 160px;
+    height: 160px;
   }
 
   .pie-legend {
@@ -749,6 +1185,24 @@ function onMouseMove(e) {
 
   .tabs-row {
     flex-wrap: wrap;
+  }
+
+  .winner-spotlight-inner {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .winner-votes {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .winner-image {
+    width: 60px;
+    height: 60px;
   }
 }
 </style>

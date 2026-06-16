@@ -66,7 +66,9 @@
     "loading": "Loading results...",
     "votes": "votes",
     "totalVotes": "Total",
-    "empty": "No results available yet."
+    "empty": "No results available yet.",
+    "winner": "WINNER",
+    "totalVotesLabel": "TOTAL VOTES"
   },
   "admin": {
     "title": "Admin Panel",
