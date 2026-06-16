@@ -8,6 +8,7 @@ import Register from '@/views/Register.vue'
 import AdminView from '@/views/AdminView.vue'
 import PokecuentoInfo from '@/views/PokecuentoInfo.vue'
 import PokefilmInfo from '@/views/PokefilmInfo.vue'
+import ResultatsView from '@/views/ResultatsView.vue'
 
 const publicRoutes = ['Login', 'Registro']
 const adminRoutes = ['AdminPanel']
@@ -55,6 +56,11 @@ const router = createRouter({
       path: '/Pokefilm/:id/info',
       name: 'PokefilmInfo',
       component: PokefilmInfo
+    },
+    {
+      path: '/Resultats',
+      name: 'Resultats',
+      component: ResultatsView
     }],
 })
 

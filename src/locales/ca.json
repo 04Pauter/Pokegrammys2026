@@ -3,6 +3,7 @@
     "home": "Inici",
     "pokecuento": "Pokecuento",
     "pokefilm": "Pokefilm",
+    "resultats": "Resultats",
     "admin": "Admin",
     "login": "Login",
     "register": "Registre",
@@ -58,6 +59,14 @@
     "video": "Vídeo",
     "notFound": "No s'ha trobat el contingut",
     "viewInfo": "Veure informació"
+  },
+  "results": {
+    "badge": "Resultats",
+    "subtitle": "Resultats de la votació dels Pokegrammys",
+    "loading": "Carregant resultats...",
+    "votes": "vots",
+    "totalVotes": "Total",
+    "empty": "No hi ha resultats disponibles encara."
   },
   "admin": {
     "title": "Panell d'Administració",
