@@ -1,15 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 
-import HomeView from '../views/HomeView.vue'
-import VotingView from '@/views/VotingView.vue'
-import LoginViw from '@/views/LoginViw.vue'
-import Register from '@/views/Register.vue'
-import AdminView from '@/views/AdminView.vue'
-import PokecuentoInfo from '@/views/PokecuentoInfo.vue'
-import PokefilmInfo from '@/views/PokefilmInfo.vue'
-import ResultatsView from '@/views/ResultatsView.vue'
-
 const publicRoutes = ['Login', 'Registro']
 const adminRoutes = ['AdminPanel']
 
@@ -18,53 +9,49 @@ const router = createRouter({
   routes: [{
       path: '/',
       name: 'Login',
-      component: LoginViw
+      component: () => import('@/views/LoginViw.vue')
     },
     {
       path: '/Pokecuento',
       name: 'Pokecuento',
-      component: VotingView,
+      component: () => import('@/views/VotingView.vue'),
       props: { type: 'pokeserie' }
     },
     {
       path: '/Pokefilm',
       name: 'Pokefilm',
-      component: VotingView,
+      component: () => import('@/views/VotingView.vue'),
       props: { type: 'pokefilm' }
     },
     {
       path: '/Home',
       name: 'Home',
-      component: HomeView
+      component: () => import('@/views/HomeView.vue')
     },
-   {
+    {
       path: '/Register',
       name: 'Registro',
-      component: Register
+      component: () => import('@/views/RegisterView.vue')
     },
-   {
+    {
       path: '/Admin',
       name: 'AdminPanel',
-      component: AdminView
+      component: () => import('@/views/AdminView.vue')
     },
     {
       path: '/Pokecuento/:id/info',
       name: 'PokecuentoInfo',
-      component: PokecuentoInfo
+      component: () => import('@/views/PokecuentoInfo.vue')
     },
     {
       path: '/Pokefilm/:id/info',
       name: 'PokefilmInfo',
-      component: PokefilmInfo
+      component: () => import('@/views/PokefilmInfo.vue')
     },
     {
       path: '/Resultats',
       name: 'Resultats',
-      component: ResultatsView
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: '/'
+      component: () => import('@/views/ResultatsView.vue')
     }],
 })
 
