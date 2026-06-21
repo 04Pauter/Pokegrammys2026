@@ -61,6 +61,10 @@ const router = createRouter({
       path: '/Resultats',
       name: 'Resultats',
       component: ResultatsView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }],
 })
 
