@@ -1,10 +1,15 @@
 {
   "nav": {
     "home": "Главная",
+    "homeTooltip": "Вернуться на главную",
     "pokecuento": "Pokecuento",
+    "pokecuentoTooltip": "О сериалах",
     "pokefilm": "Pokefilm",
+    "pokefilmTooltip": "Автономные истории от 1ч",
     "resultats": "Результаты",
+    "resultatsTooltip": "Посмотреть результаты голосования",
     "admin": "Админ",
+    "adminTooltip": "Панель управления",
     "login": "Войти",
     "register": "Регистрация",
     "logout": "Выйти",
