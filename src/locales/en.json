@@ -1,10 +1,15 @@
 {
   "nav": {
     "home": "Home",
+    "homeTooltip": "Back to home",
     "pokecuento": "Pokecuento",
+    "pokecuentoTooltip": "Series-focused",
     "pokefilm": "Pokefilm",
+    "pokefilmTooltip": "Standalone stories over 1h",
     "resultats": "Results",
+    "resultatsTooltip": "View voting results",
     "admin": "Admin",
+    "adminTooltip": "Admin panel",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",

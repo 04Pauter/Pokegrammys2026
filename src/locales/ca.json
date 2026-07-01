@@ -1,10 +1,15 @@
 {
   "nav": {
     "home": "Inici",
+    "homeTooltip": "Tornar a l'inici",
     "pokecuento": "Pokecuento",
+    "pokecuentoTooltip": "Enfocat a series",
     "pokefilm": "Pokefilm",
+    "pokefilmTooltip": "Històries autoconclusives de +1h",
     "resultats": "Resultats",
+    "resultatsTooltip": "Veure resultats de la votació",
     "admin": "Admin",
+    "adminTooltip": "Panell d'administració",
     "login": "Login",
     "register": "Registre",
     "logout": "Tancar sessió",
