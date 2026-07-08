@@ -120,7 +120,7 @@ function closeMobileMenu() {
       <!-- Brand -->
       <div class="navbar-brand" @click="router.push('/Home')">
         <img class="brand-icon" src="/Pokegrammys.ico" alt="Pokegrammys" />
-        <span class="brand-text">Pokegrammys</span>
+        <span class="brand-text">{{ $t('nav.brand') }}</span>
       </div>
 
       <!-- Navigation links (desktop) -->

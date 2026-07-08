@@ -15,7 +15,8 @@
     "logout": "Выйти",
     "language": "Язык",
     "lightMode": "Светлая тема",
-    "darkMode": "Тёмная тема"
+    "darkMode": "Тёмная тема",
+    "brand": "Pokegrammys"
   },
   "home": {
     "title": "Pokegrammys 2026",
@@ -41,7 +42,9 @@
     "hasAccount": "Уже есть аккаунт?",
     "login": "Войти",
     "register": "Зарегистрироваться",
-    "loginRequired": "Необходимо войти для доступа"
+    "loginRequired": "Необходимо войти для доступа",
+    "hidePassword": "Скрыть пароль",
+    "showPassword": "Показать пароль"
   },
   "voting": {
     "back": "Назад",
@@ -54,7 +57,9 @@
     "thanks": "Спасибо за участие в Pokegrammys {year}",
     "errorSending": "Ошибка при отправке голосов. Попробуйте снова.",
     "alreadyVoted": "Вы уже голосовали в одной из предыдущих категорий. Попробуйте снова.",
-    "backHome": "Вернуться на главную"
+    "backHome": "Вернуться на главную",
+    "nomineesCount": "{count} номинантов",
+    "selected": "ВЫБРАНО"
   },
   "info": {
     "back": "Назад",
@@ -73,7 +78,9 @@
     "totalVotes": "Всего",
     "empty": "Результаты пока недоступны.",
     "winner": "ПОБЕДИТЕЛЬ",
-    "totalVotesLabel": "ВСЕГО ГОЛОСОВ"
+    "totalVotesLabel": "ВСЕГО ГОЛОСОВ",
+    "tabPokeserie": "Pokeserie",
+    "tabPokefilm": "Pokefilm"
   },
   "admin": {
     "title": "Панель управления",

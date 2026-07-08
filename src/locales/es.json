@@ -15,7 +15,8 @@
     "logout": "Cerrar sesión",
     "language": "Idioma",
     "lightMode": "Modo claro",
-    "darkMode": "Modo oscuro"
+    "darkMode": "Modo oscuro",
+    "brand": "Pokegrammys"
   },
   "home": {
     "title": "Pokegrammys 2026",
@@ -41,7 +42,9 @@
     "hasAccount": "¿Ya tienes cuenta?",
     "login": "Iniciar sesión",
     "register": "Registrarse",
-    "loginRequired": "Debes iniciar sesión para acceder"
+    "loginRequired": "Debes iniciar sesión para acceder",
+    "hidePassword": "Ocultar contraseña",
+    "showPassword": "Mostrar contraseña"
   },
   "voting": {
     "back": "Anterior",
@@ -54,7 +57,9 @@
     "thanks": "Gracias por votar en los Pokegrammys {year}",
     "errorSending": "Error al enviar los votos. Inténtalo de nuevo.",
     "alreadyVoted": "Ya has votado en alguna categoría anteriormente. Inténtalo de nuevo.",
-    "backHome": "Volver al inicio"
+    "backHome": "Volver al inicio",
+    "nomineesCount": "{count} nominados",
+    "selected": "SELECCIONADO"
   },
   "info": {
     "back": "Volver",
@@ -73,7 +78,9 @@
     "totalVotes": "Total",
     "empty": "No hay resultados disponibles todavía.",
     "winner": "GANADOR",
-    "totalVotesLabel": "VOTOS TOTALES"
+    "totalVotesLabel": "VOTOS TOTALES",
+    "tabPokeserie": "Pokeserie",
+    "tabPokefilm": "Pokefilm"
   },
   "admin": {
     "title": "Panel de Administración",
