@@ -50,7 +50,7 @@
             @click="activeTab = 'pokeserie'"
           >
             <span class="tab-icon">📺</span>
-            Pokeserie
+            {{ $t('results.tabPokeserie') }}
           </button>
           <button
             class="tab-btn"
@@ -58,7 +58,7 @@
             @click="activeTab = 'pokefilm'"
           >
             <span class="tab-icon">🎬</span>
-            Pokefilm
+            {{ $t('results.tabPokefilm') }}
           </button>
         </div>
 
@@ -526,7 +526,7 @@ function winnerConfettiStyle(c) {
 .voting-hero-title {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 50%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 50%, var(--color-text) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1177,6 +1177,15 @@ function winnerConfettiStyle(c) {
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
+  }
+
+  .legend-item {
+    flex: 0 1 auto;
+    max-width: 140px;
+  }
+
+  .legend-label {
+    white-space: normal;
   }
 
   .nominees-bars {

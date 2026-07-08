@@ -1,7 +1,10 @@
 <template>
   <div class="admin-view">
+    <!-- Background ambient -->
+    <div class="admin-orb admin-orb-1" />
+    <div class="admin-orb admin-orb-2" />
+
     <h1>{{ $t('admin.title') }}</h1>
-    <!--<p>Benvingut, {{ auth.user?.email }}</p>-->
 
     <div class="admin-grid">
       <PokecuentoCrud />

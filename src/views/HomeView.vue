@@ -46,13 +46,29 @@
     <!-- Category cards -->
     <div class="home-categories">
       <router-link to="/Pokecuento" class="category-card">
-        <div class="category-card-icon">📺</div>
-        <h3>Pokecuentos</h3>
+        <div class="category-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+            <polyline points="17 2 12 7 7 2"/>
+          </svg>
+        </div>
+        <h3>{{ $t('nav.pokecuento') }}</h3>
         <p>{{ $t('home.subtitle') || 'Els millors Pokecuentos de la comunitat' }}</p>
       </router-link>
       <router-link to="/Pokefilm" class="category-card">
-        <div class="category-card-icon">🎬</div>
-        <h3>Pokefilms</h3>
+        <div class="category-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="2" y1="7" x2="7" y2="7"/>
+            <line x1="2" y1="17" x2="7" y2="17"/>
+            <line x1="17" y1="7" x2="22" y2="7"/>
+            <line x1="17" y1="17" x2="22" y2="17"/>
+          </svg>
+        </div>
+        <h3>{{ $t('nav.pokefilm') }}</h3>
         <p>{{ $t('home.subtitle') || 'Els millors Pokefilms de la comunitat' }}</p>
       </router-link>
     </div>

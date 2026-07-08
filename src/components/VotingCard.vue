@@ -46,7 +46,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>SELECCIONAT</span>
+        <span>{{ $t('voting.selected') }}</span>
       </div>
     </Transition>
 
