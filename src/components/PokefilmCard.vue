@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -43,6 +43,57 @@ defineEmits(['select'])
 
 const router = useRouter()
 const imageLoaded = ref(false)
+const isHovered = ref(false)
+const mouseX = ref(0)
+const mouseY = ref(0)
+const cardRect = ref(null)
+
+function onMouseEnter(e) {
+  isHovered.value = true
+  cardRect.value = e.currentTarget.getBoundingClientRect()
+}
+
+function onMouseLeave() {
+  isHovered.value = false
+  mouseX.value = 0
+  mouseY.value = 0
+}
+
+function onMouseMove(e) {
+  if (!cardRect.value) return
+  const rect = cardRect.value
+  const x = (e.clientX - rect.left) / rect.width
+  const y = (e.clientY - rect.top) / rect.height
+  mouseX.value = (x - 0.5) * 2
+  mouseY.value = (y - 0.5) * 2
+}
+
+const cardStyle = computed(() => {
+  if (!isHovered.value) return {}
+  const rotX = mouseY.value * -8
+  const rotY = mouseX.value * 8
+  return {
+    transform: `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`,
+    transition: 'transform 0.1s ease'
+  }
+})
+
+function sparkleStyle(i) {
+  const angle = (i / 6) * 360
+  const dist = 25 + (i % 4) * 10
+  const x = 50 + Math.cos(angle * Math.PI / 180) * dist
+  const y = 50 + Math.sin(angle * Math.PI / 180) * dist
+  const delay = i * 0.06
+  const driftX = Math.cos(angle * Math.PI / 180) * 30
+  const driftY = Math.sin(angle * Math.PI / 180) * 30 - 10
+  return {
+    left: x + '%',
+    top: y + '%',
+    animationDelay: delay + 's',
+    '--drift-x': driftX + 'px',
+    '--drift-y': driftY + 'px'
+  }
+}
 
 function goToInfo() {
   router.push({ name: 'PokefilmInfo', params: { id: props.pokefilm.id } })

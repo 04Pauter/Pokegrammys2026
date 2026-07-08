@@ -82,7 +82,7 @@
               <div class="category-header-inner">
                 <div class="category-accent-bar" />
                 <h2>{{ currentCategory.nombre }}</h2>
-                <span class="category-count">{{ nominees.length }} nominats</span>
+                <span class="category-count">{{ $t('voting.nomineesCount', { count: nominees.length }) }}</span>
               </div>
             </div>
 

@@ -15,7 +15,8 @@
     "logout": "Tancar sessió",
     "language": "Idioma",
     "lightMode": "Mode clar",
-    "darkMode": "Mode fosc"
+    "darkMode": "Mode fosc",
+    "brand": "Pokegrammys"
   },
   "home": {
     "title": "Pokegrammys 2026",
@@ -41,7 +42,9 @@
     "hasAccount": "Ja tens compte?",
     "login": "Iniciar sessió",
     "register": "Registrar-se",
-    "loginRequired": "Has d'iniciar sessió per accedir"
+    "loginRequired": "Has d'iniciar sessió per accedir",
+    "hidePassword": "Amagar contrasenya",
+    "showPassword": "Mostrar contrasenya"
   },
   "voting": {
     "back": "Anterior",
@@ -54,7 +57,9 @@
     "thanks": "Gràcies per votar als Pokegrammys {year}",
     "errorSending": "Error al enviar els vots. Torna-ho a intentar.",
     "alreadyVoted": "Ja has votat en alguna categoria anteriorment. Torna-ho a intentar.",
-    "backHome": "Tornar a l'inici"
+    "backHome": "Tornar a l'inici",
+    "nomineesCount": "{count} nominats",
+    "selected": "SELECCIONAT"
   },
   "info": {
     "back": "Tornar",
@@ -73,7 +78,9 @@
     "totalVotes": "Total",
     "empty": "No hi ha resultats disponibles encara.",
     "winner": "GUANYADOR",
-    "totalVotesLabel": "VOTS TOTALS"
+    "totalVotesLabel": "VOTS TOTALS",
+    "tabPokeserie": "Pokeserie",
+    "tabPokefilm": "Pokefilm"
   },
   "admin": {
     "title": "Panell d'Administració",
