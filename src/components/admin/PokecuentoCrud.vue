@@ -75,7 +75,8 @@ function emptyForm() {
 async function load() {
   const { data, error: err } = await supabase.from(TABLE).select('*').order('id')
   if (err) {
-    error.value = err.message
+    console.error('Error pokecuento:', err)
+    error.value = t('admin.errorGeneric')
   } else {
     items.value = data ?? []
   }
@@ -107,10 +108,10 @@ async function save() {
 
   if (editing.value) {
     const { error: err } = await supabase.from(TABLE).update(payload).eq('id', editing.value.id)
-    if (err) { error.value = err.message; return }
+    if (err) { console.error('Error pokecuento:', err); error.value = t('admin.errorGeneric'); return }
   } else {
     const { error: err } = await supabase.from(TABLE).insert(payload)
-    if (err) { error.value = err.message; return }
+    if (err) { console.error('Error pokecuento:', err); error.value = t('admin.errorGeneric'); return }
   }
 
   showForm.value = false
@@ -122,7 +123,8 @@ async function confirmDelete(item) {
   if (!confirm(t('admin.pokecuentos.confirmDelete', { name: item.nombre }))) return
   const { error: err } = await supabase.from(TABLE).delete().eq('id', item.id)
   if (err) {
-    error.value = err.message
+    console.error('Error pokecuento:', err)
+    error.value = t('admin.errorGeneric')
   } else {
     await load()
   }

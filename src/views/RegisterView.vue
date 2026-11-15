@@ -23,11 +23,11 @@
           <span class="input-glow" />
         </div>
         <div class="input-group">
-          <input v-model="password" :placeholder="$t('auth.password')" type="password" required minlength="6" />
+          <input v-model="password" :placeholder="$t('auth.password')" type="password" required minlength="8" />
           <span class="input-glow" />
         </div>
         <div class="input-group">
-          <input v-model="confirmPassword" :placeholder="$t('auth.confirmPassword')" type="password" required minlength="6" />
+          <input v-model="confirmPassword" :placeholder="$t('auth.confirmPassword')" type="password" required minlength="8" />
           <span class="input-glow" />
         </div>
         <Transition name="state-fade">
@@ -52,10 +52,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase.js'
+import { useAuthStore } from '@/stores/auth.js'
 
 const { t } = useI18n()
+const router = useRouter()
+const auth = useAuthStore()
 
 const email = ref('')
 const password = ref('')
@@ -91,15 +95,30 @@ const handleRegister = async () => {
 
   loading.value = true
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
+    options: {
+      // Sense això, l'enllaç de confirmació pot aterrar on no toca.
+      // BASE_URL ja inclou /Pokegrammys2026/ al build (vite.config.js).
+      emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+    },
   })
 
   if (error) {
-    errorMsg.value = error.message
+    // No mostrem el missatge cru de Supabase: pot revelar si el correu
+    // ja existeix o detalls interns del projecte.
+    console.error('Error registering:', error)
+    errorMsg.value = t('auth.registerError')
     loading.value = false
+  } else if (data?.session?.user) {
+    // Amb la confirmació per correu desactivada, el registre ja
+    // retorna sessió: entrem directament a l'app.
+    await auth.adoptSession(data.session.user)
+    loading.value = false
+    await router.push('/Home')
   } else {
+    // Confirmació per correu activa: cal verificar abans d'entrar.
     successMsg.value = t('auth.accountCreated')
     loading.value = false
   }

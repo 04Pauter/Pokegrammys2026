@@ -27,12 +27,12 @@
         <thead>
           <tr>
             <th>{{ $t('admin.nominations.category') }}</th>
-            <th>{{ tab === 'pokeserie' ? $t('admin.nominations.selectPokecuento') : $t('admin.nominations.selectPokefilm') }}</th>
+            <th>{{ $t('admin.nominations.nominee') }}</th>
             <th>{{ $t('admin.nominations.actions') }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(nom, i) in nominations" :key="i">
+          <tr v-for="nom in nominations" :key="`${nom.categoria_id}-${nom.nominee_id}`">
             <td>{{ categoryName(nom.categoria_id) }}</td>
             <td>{{ nomineeName(nom.nominee_id) }}</td>
             <td class="actions">
@@ -109,9 +109,9 @@ async function loadAll() {
     supabase.from(config().nominats).select('*'),
   ])
 
-  if (catRes.error) { error.value = catRes.error.message; return }
-  if (nomRes.error) { error.value = nomRes.error.message; return }
-  if (nomiRes.error) { error.value = nomiRes.error.message; return }
+  if (catRes.error) { console.error('Error nominats/categorias:', catRes.error); error.value = t('admin.errorGeneric'); return }
+  if (nomRes.error) { console.error('Error nominats/nominats:', nomRes.error); error.value = t('admin.errorGeneric'); return }
+  if (nomiRes.error) { console.error('Error nominats/nominados:', nomiRes.error); error.value = t('admin.errorGeneric'); return }
 
   categories.value = catRes.data ?? []
   nominees.value = nomRes.data ?? []
@@ -136,11 +136,8 @@ async function addNomination() {
   }
   const { error: err } = await supabase.from(config().nominats).insert(payload)
   if (err) {
-    if (err.code === '23505') {
-      error.value = t('admin.nominations.duplicate')
-    } else {
-      error.value = err.message
-    }
+    console.error('Error nominats/insert:', err)
+    error.value = err.code === '23505' ? t('admin.nominations.duplicate') : t('admin.errorGeneric')
   } else {
     selectedCategory.value = ''
     selectedNominee.value = ''
@@ -155,7 +152,8 @@ async function removeNomination(categoriaId, nomineeId) {
     .eq(config().categoryKey, categoriaId)
     .eq(config().nomineeKey, nomineeId)
   if (err) {
-    error.value = err.message
+    console.error('Error nominats/delete:', err)
+    error.value = t('admin.errorGeneric')
   } else {
     await loadAll()
   }

@@ -18,12 +18,12 @@
     </div>
     <div class="voting-noise" />
     <div
+      ref="orbGold"
       class="orb orb-gold"
-      :style="{ transform: `translate(${orbGold.x}px, ${orbGold.y}px)` }"
     />
     <div
+      ref="orbPurple"
       class="orb orb-purple"
-      :style="{ transform: `translate(${orbPurple.x}px, ${orbPurple.y}px)` }"
     />
 
     <!-- Header -->
@@ -54,7 +54,7 @@
       </div>
 
       <!-- VOTING -->
-      <div v-else-if="votingPhase === 'voting'" key="voting" class="voting-content">
+      <div v-else-if="votingPhase === 'voting' && currentCategory" key="voting" class="voting-content">
         <!-- Progress Bar -->
         <div class="progress-section">
           <div class="progress-bar-container">
@@ -68,7 +68,7 @@
           </div>
           <div class="progress-info">
             <span class="progress-step-label">{{ currentCategoryIndex + 1 }} / {{ categories.length }}</span>
-            <span class="progress-category-name">{{ currentCategory.nombre }}</span>
+            <span class="progress-category-name">{{ $t('voting.nomineesCount', { count: nominees.length }) }}</span>
           </div>
         </div>
 
@@ -81,12 +81,11 @@
             <div class="category-header">
               <div class="category-header-inner">
                 <div class="category-accent-bar" />
-                <h2>{{ currentCategory.nombre }}</h2>
-                <span class="category-count">{{ $t('voting.nomineesCount', { count: nominees.length }) }}</span>
+                <h2>{{ currentCategory?.nombre }}</h2>
               </div>
             </div>
 
-            <div class="cards-grid">
+            <div class="cards-grid" role="radiogroup" :aria-label="$t('nav.pokecuento')">
               <VotingCard
                 v-for="(item, index) in nominees"
                 :key="item.id"
@@ -103,8 +102,8 @@
         <div class="vote-actions">
           <button
             class="vote-btn"
-            :class="{ 'vote-btn-ready': selectedNomineeId }"
-            :disabled="!selectedNomineeId"
+            :class="{ 'vote-btn-ready': selectedNomineeId && !submitting }"
+            :disabled="!selectedNomineeId || submitting || nominees.length === 0"
             @click="submitVote"
           >
             <span class="vote-btn-text">
@@ -116,6 +115,17 @@
             </svg>
           </button>
         </div>
+      </div>
+
+      <!-- EMPTY -->
+      <div v-else-if="emptyState" key="empty" class="loading-state empty-voting-state">
+        <p>{{ $t('voting.noCategories') }}</p>
+        <router-link to="/Home" class="done-home-btn">
+          <span>{{ $t('voting.backHome') }}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </router-link>
       </div>
 
       <!-- DONE -->
@@ -153,7 +163,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase.js'
 import { useAuthStore } from '@/stores/auth.js'
@@ -176,6 +186,8 @@ const votes = ref([])
 const loading = ref(true)
 const votingPhase = ref('voting')
 const errorMessage = ref('')
+const submitting = ref(false)
+const emptyState = ref(false)
 
 const tables = computed(() => ({
   categories: props.type === 'pokeserie' ? 'categorias_pokeserie' : 'categorias_pokefilm',
@@ -195,44 +207,80 @@ const progressPercent = computed(() => {
   return ((currentCategoryIndex.value + 1) / categories.value.length) * 100
 })
 
+/* --- Càrrega de dades ---------------------------------------
+   `requestId` evita que dues càrregues solapades (canvi de
+   pestanya ràpid) es barregin i deixin dades del tipus erroni. */
+let requestId = 0
+
 async function loadCategory(index) {
   const category = categories.value[index]
-  const { data, error } = await supabase
-    .from(tables.value.nominados)
-    .select(`*, ${tables.value.foreignKey}(*)`)
-    .eq('categoria_id', category.id)
+  if (!category) return
 
-  if (error) {
-    console.error('Error fetching nominees:', error)
-    return
-  }
-
-  const Model = props.type === 'pokeserie' ? Pokecuento : Pokefilm
-  nominees.value = data.map(item => new Model(item[tables.value.foreignKey]))
+  // Es buiden els nominats i la selecció ABANS de la consulta:
+  // si no, el títol nou apareixia damunt de les targetes velles.
+  nominees.value = []
   selectedNomineeId.value = null
+
+  const myRequest = requestId
+  try {
+    const { data, error } = await supabase
+      .from(tables.value.nominados)
+      .select(`*, ${tables.value.foreignKey}(*)`)
+      .eq('categoria_id', category.id)
+
+    if (myRequest !== requestId) return
+
+    if (error) {
+      console.error('Error fetching nominees:', error)
+      errorMessage.value = t('voting.errorLoading')
+      return
+    }
+
+    const Model = props.type === 'pokeserie' ? Pokecuento : Pokefilm
+    nominees.value = (data || [])
+      .filter(item => item[tables.value.foreignKey])
+      .map(item => new Model(item[tables.value.foreignKey]))
+  } catch (err) {
+    if (myRequest !== requestId) return
+    console.error('Error fetching nominees:', err)
+    errorMessage.value = t('voting.errorLoading')
+  }
 }
 
 async function submitVote() {
-  votes.value.push({
-    categoria_id: currentCategory.value.id,
-    nominee_id: selectedNomineeId.value
-  })
+  if (submitting.value || !selectedNomineeId.value || !currentCategory.value) return
 
-  if (currentCategoryIndex.value < categories.value.length - 1) {
-    currentCategoryIndex.value++
-    await loadCategory(currentCategoryIndex.value)
-  } else {
-    await submitAllVotes()
+  submitting.value = true
+  try {
+    votes.value.push({
+      categoria_id: currentCategory.value.id,
+      nominee_id: selectedNomineeId.value
+    })
+
+    if (currentCategoryIndex.value < categories.value.length - 1) {
+      currentCategoryIndex.value++
+      await loadCategory(currentCategoryIndex.value)
+    } else {
+      await submitAllVotes()
+    }
+  } finally {
+    submitting.value = false
   }
 }
 
 async function goBack() {
-  votes.value.pop()
-  currentCategoryIndex.value--
-  await loadCategory(currentCategoryIndex.value)
-  const lastVote = votes.value[votes.value.length - 1]
-  if (lastVote) {
-    selectedNomineeId.value = lastVote.nominee_id
+  if (submitting.value || currentCategoryIndex.value <= 0) return
+  submitting.value = true
+  try {
+    votes.value.pop()
+    currentCategoryIndex.value--
+    await loadCategory(currentCategoryIndex.value)
+    const lastVote = votes.value[votes.value.length - 1]
+    if (lastVote) {
+      selectedNomineeId.value = lastVote.nominee_id
+    }
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -253,12 +301,42 @@ async function submitAllVotes() {
   const { error } = await supabase.from(tables.value.votacion).insert(inserts)
 
   if (error) {
+    /* Si el lot sencer falla (p. ex. per un vot d'una sessió anterior),
+       provem fila a fila per no perdre cap vot: la restricció
+       UNIQUE (votante_id, categoria_id) del servidor garanteix
+       que cap categoria queda amb dos vots del mateix usuari. */
     if (error.code === '23505') {
-      errorMessage.value = t('voting.alreadyVoted')
-    } else {
+      let saved = 0
+      let duplicates = 0
+      for (const row of inserts) {
+        const { error: rowError } = await supabase.from(tables.value.votacion).insert(row)
+        if (!rowError) {
+          saved++
+        } else if (rowError.code === '23505') {
+          duplicates++
+        } else {
+          console.error('Error submitting vote:', rowError)
+        }
+      }
+
+      if (saved > 0) {
+        // Han triomfat els nous; els altres ja estaven desats.
+        errorMessage.value = t('voting.partialVotes')
+        votingPhase.value = 'done'
+        return
+      }
+
+      if (duplicates === inserts.length) {
+        errorMessage.value = t('voting.alreadyVoted')
+        return
+      }
+
       errorMessage.value = t('voting.errorSending')
+      return
     }
+
     console.error('Error submitting votes:', error)
+    errorMessage.value = t('voting.errorSending')
     return
   }
 
@@ -266,31 +344,49 @@ async function submitAllVotes() {
 }
 
 async function loadData() {
+  const myRequest = ++requestId
+
   loading.value = true
   votingPhase.value = 'voting'
   errorMessage.value = ''
   currentCategoryIndex.value = 0
   selectedNomineeId.value = null
   votes.value = []
+  nominees.value = []
+  categories.value = []
+  emptyState.value = false
 
-  const { data: categoriesData, error: categoriesError } = await supabase
-    .from(tables.value.categories)
-    .select('*')
-    .order('id')
+  try {
+    const { data: categoriesData, error: categoriesError } = await supabase
+      .from(tables.value.categories)
+      .select('*')
+      .order('id')
 
-  if (categoriesError) {
-    console.error('Error fetching categories:', categoriesError)
-    loading.value = false
-    return
-  }
+    if (myRequest !== requestId) return
 
-  categories.value = categoriesData
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError)
+      errorMessage.value = t('voting.errorLoading')
+      loading.value = false
+      return
+    }
 
-  if (categoriesData.length > 0) {
+    categories.value = categoriesData || []
+
+    if (categories.value.length === 0) {
+      emptyState.value = true
+      loading.value = false
+      return
+    }
+
     await loadCategory(0)
+  } catch (err) {
+    if (myRequest !== requestId) return
+    console.error('Error loading categories:', err)
+    errorMessage.value = t('voting.errorLoading')
+  } finally {
+    if (myRequest === requestId) loading.value = false
   }
-
-  loading.value = false
 }
 
 onMounted(loadData)
@@ -311,19 +407,45 @@ const particles = Array.from({ length: 18 }, (_, i) => ({
   opacity: 0.06 + Math.random() * 0.2
 }))
 
-const orbGold = reactive({ x: 0, y: 0 })
-const orbPurple = reactive({ x: 0, y: 0 })
+/* Els orbes segueixen el ratolí via variables CSS: s'escriuen
+   directament al DOM, de manera que el component no es
+   reactivenitza a cada mousemove. */
+const orbGold = ref(null)
+const orbPurple = ref(null)
+
+let orbRaf = null
+let orbPending = null
+
+function flushOrbs() {
+  orbRaf = null
+  if (!orbPending) return
+  const { x, y } = orbPending
+  if (orbGold.value) {
+    orbGold.value.style.setProperty('--orb-x', `${x * 30}px`)
+    orbGold.value.style.setProperty('--orb-y', `${y * 30}px`)
+  }
+  if (orbPurple.value) {
+    orbPurple.value.style.setProperty('--orb-x', `${x * -20}px`)
+    orbPurple.value.style.setProperty('--orb-y', `${y * -20}px`)
+  }
+}
 
 function onMouseMove(e) {
-  if (!viewRef.value) return
-  const rect = viewRef.value.getBoundingClientRect()
-  const cx = (e.clientX - rect.left) / rect.width - 0.5
-  const cy = (e.clientY - rect.top) / rect.height - 0.5
-  orbGold.x = cx * 30
-  orbGold.y = cy * 30
-  orbPurple.x = cx * -20
-  orbPurple.y = cy * -20
+  const el = viewRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  if (!rect.width || !rect.height) return
+  orbPending = {
+    x: (e.clientX - rect.left) / rect.width - 0.5,
+    y: (e.clientY - rect.top) / rect.height - 0.5
+  }
+  if (orbRaf === null) orbRaf = requestAnimationFrame(flushOrbs)
 }
+
+onUnmounted(() => {
+  if (orbRaf !== null) cancelAnimationFrame(orbRaf)
+  orbRaf = null
+})
 
 /* --- Confetti --- */
 const confettiColors = ['#d4a843', '#f0cc6a', '#ffffff', '#c9a035', '#ffe082', '#8b5cf6', '#ec4899', '#06b6d4']
@@ -349,9 +471,10 @@ function confettiStyle(c) {
     left: c.x + '%',
     backgroundColor: c.color,
     ...shapeStyles[c.shape],
-    transform: `rotate(${c.rotation}deg) scale(${c.scale})`,
-    animationDelay: c.delay + 's',
-    animationDuration: c.duration + 's',
+    '--fall-duration': c.duration + 's',
+    '--fall-delay': c.delay + 's',
+    '--confetti-spin': (360 + c.rotation) + 'deg',
+    '--confetti-scale': c.scale,
     '--drift': c.drift + 'px'
   }
 }

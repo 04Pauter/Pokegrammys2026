@@ -77,7 +77,8 @@ function currentTable() {
 async function load() {
   const { data, error: err } = await supabase.from(currentTable()).select('*').order('id')
   if (err) {
-    error.value = err.message
+    console.error('Error categoria:', err)
+    error.value = t('admin.errorGeneric')
   } else {
     items.value = data ?? []
   }
@@ -116,10 +117,10 @@ async function save() {
 
   if (editing.value) {
     const { error: err } = await supabase.from(currentTable()).update(payload).eq('id', editing.value.id)
-    if (err) { error.value = err.message; return }
+    if (err) { console.error('Error categoria:', err); error.value = t('admin.errorGeneric'); return }
   } else {
     const { error: err } = await supabase.from(currentTable()).insert(payload)
-    if (err) { error.value = err.message; return }
+    if (err) { console.error('Error categoria:', err); error.value = t('admin.errorGeneric'); return }
   }
 
   showForm.value = false
@@ -131,7 +132,8 @@ async function confirmDelete(item) {
   if (!confirm(t('admin.categories.confirmDelete', { name: item.nombre }))) return
   const { error: err } = await supabase.from(currentTable()).delete().eq('id', item.id)
   if (err) {
-    error.value = err.message
+    console.error('Error categoria:', err)
+    error.value = t('admin.errorGeneric')
   } else {
     await load()
   }

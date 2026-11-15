@@ -58,7 +58,10 @@
               <iframe
                 v-if="isYoutube"
                 :src="youtubeEmbedUrl"
+                title="Vídeo de YouTube"
                 frameborder="0"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen>
               </iframe>
               <video v-else controls class="video-player">
@@ -101,6 +104,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onEscape)
+  // Si es deixa el lightbox obert i es navega fora, el body es
+  // quedava amb `overflow: hidden` i l'app deixava de fer scroll.
+  document.body.style.overflow = ''
 })
 
 watch(imageExpanded, (val) => {
@@ -111,23 +117,33 @@ function goBack() {
   router.push({ name: 'Pokecuento' })
 }
 
-function isYoutubeUrl(urlString) {
-  try {
-    const url = new URL(urlString)
-    const hostname = url.hostname.toLowerCase()
-    return hostname.includes('youtube.com') || hostname === 'youtu.be'
-  } catch {
-    return false
-  }
-}
+// Només acceptem dominis oficials de YouTube. No fem servir includes():
+// "youtube.com.exemple-maliciós.com" també hi passaria.
+const YOUTUBE_HOSTS = new Set([
+  'youtube.com',
+  'www.youtube.com',
+  'm.youtube.com',
+  'youtu.be',
+  'www.youtu.be'
+])
 
 function getYoutubeVideoId(urlString) {
   try {
     const url = new URL(urlString)
-    if (url.hostname === 'youtu.be') {
-      return url.pathname.slice(1).split('/')[0]
+    const hostname = url.hostname.toLowerCase()
+    let videoId = null
+
+    if (hostname === 'youtu.be' || hostname === 'www.youtu.be') {
+      videoId = url.pathname.slice(1).split('/')[0]
+    } else if (YOUTUBE_HOSTS.has(hostname)) {
+      const [, kind, id] = url.pathname.split('/')
+      videoId = kind === 'shorts' || kind === 'embed' || kind === 'live'
+        ? id
+        : url.searchParams.get('v')
     }
-    return url.searchParams.get('v')
+
+    // Els IDs de YouTube fan exactament 11 caràcters.
+    return videoId && /^[A-Za-z0-9_-]{11}$/.test(videoId) ? videoId : null
   } catch {
     return null
   }
@@ -135,29 +151,44 @@ function getYoutubeVideoId(urlString) {
 
 const isYoutube = computed(() => {
   if (!pokecuento.value?.videourl) return false
-  return isYoutubeUrl(pokecuento.value.videourl)
+  // Cal un ID vàlid, no només un domini de YouTube: si no, quedaria
+  // un iframe buit en comptes del reproductor de vídeo normal.
+  return getYoutubeVideoId(pokecuento.value.videourl) !== null
 })
 
 const youtubeEmbedUrl = computed(() => {
   if (!pokecuento.value?.videourl) return ''
   const videoId = getYoutubeVideoId(pokecuento.value.videourl)
   if (!videoId) return ''
-  return `https://www.youtube.com/embed/${videoId}`
+  // youtube-nocookie redueix el seguiment de Google fins que es reprodueix.
+  return `https://www.youtube-nocookie.com/embed/${videoId}`
 })
 
-onMounted(async () => {
-  const { data, error } = await supabase
-    .from('pokecuento')
-    .select('*')
-    .eq('id', route.params.id)
-    .single()
+async function loadPokecuento() {
+  loading.value = true
+  pokecuento.value = null
+  try {
+    const { data, error } = await supabase
+      .from('pokecuento')
+      .select('*')
+      .eq('id', route.params.id)
+      .maybeSingle()
 
-  if (error) {
-    console.error('Error fetching pokecuento:', error)
-  } else {
-    pokecuento.value = new Pokecuento(data)
+    if (error) {
+      console.error('Error fetching pokecuento:', error)
+    } else if (data) {
+      pokecuento.value = new Pokecuento(data)
+    }
+  } catch (err) {
+    console.error('Error fetching pokecuento:', err)
+  } finally {
+    loading.value = false
   }
+}
 
-  loading.value = false
-})
+onMounted(loadPokecuento)
+
+// El component es reutilitza per a /Pokecuento/:id/info: sense això
+// es mostraven les dades de l'id anterior.
+watch(() => route.params.id, loadPokecuento)
 </script>

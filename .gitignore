@@ -1,4 +1,9 @@
+# Variables d'entorn. No hi posis mai service_role ni secrets.
+# La URL i la clau anon/publishable són públiques, però no cal versionar-les.
 .env
+.env.*
+!.env.example
+
 # Logs
 logs
 *.log

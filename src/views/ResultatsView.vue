@@ -17,8 +17,8 @@
       />
     </div>
     <div class="resultats-noise" />
-    <div class="orb orb-gold" :style="{ transform: `translate(${orbGold.x}px, ${orbGold.y}px)` }" />
-    <div class="orb orb-purple" :style="{ transform: `translate(${orbPurple.x}px, ${orbPurple.y}px)` }" />
+    <div ref="orbGold" class="orb orb-gold" />
+    <div ref="orbPurple" class="orb orb-purple" />
 
     <!-- Header -->
     <header class="page-header">
@@ -74,7 +74,7 @@
               <div class="category-result-header">
                 <div class="category-accent-bar" />
                 <h2 class="category-result-name">{{ cat.nombre }}</h2>
-                <span class="category-total-votes">{{ cat.totalVotos }} {{ $t('results.votes') }}</span>
+                <span class="category-total-votes">{{ $t('results.votes', { count: cat.totalVotos }) }}</span>
               </div>
 
               <div class="category-result-body">
@@ -88,7 +88,7 @@
                       <div class="pie-glow" />
                       <div class="pie-center">
                         <span class="pie-center-number">{{ getAnimatedTotal(cat.id) }}</span>
-                        <span class="pie-center-label">{{ $t('results.totalVotesLabel') }}</span>
+                        <span class="pie-center-label">{{ $t('results.totalVotesLabel', { count: getAnimatedTotal(cat.id) }) }}</span>
                       </div>
                     </div>
                   </div>
@@ -118,7 +118,12 @@
                         <span class="winner-medal">🥇</span>
                       </div>
                       <div class="winner-image-wrapper">
-                        <img :src="cat.nominees[0].imagenurl" class="winner-image" :alt="cat.nominees[0].nombre" />
+                        <img
+                          v-if="cat.nominees[0].imagenurl"
+                          :src="cat.nominees[0].imagenurl"
+                          class="winner-image"
+                          :alt="cat.nominees[0].nombre"
+                        />
                         <div class="winner-image-glow" />
                       </div>
                       <div class="winner-info">
@@ -128,7 +133,7 @@
                       </div>
                       <div class="winner-votes">
                         <span class="winner-votes-number">{{ cat.nominees[0].votos }}</span>
-                        <span class="winner-votes-label">{{ $t('results.votes') }}</span>
+                        <span class="winner-votes-label">{{ $t('results.votesLabel', { count: cat.nominees[0].votos }) }}</span>
                       </div>
                     </div>
                   </div>
@@ -163,7 +168,7 @@
                           <div class="bar-fill-shimmer" />
                         </div>
                       </div>
-                      <span class="nominee-votes">{{ nom.votos }} {{ $t('results.votes') }}</span>
+                      <span class="nominee-votes">{{ $t('results.votes', { count: nom.votos }) }}</span>
                     </div>
                   </div>
                 </div>
@@ -181,7 +186,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, watch, nextTick } from 'vue'
 import { supabase } from '../lib/supabase.js'
 
 const activeTab = ref('pokeserie')
@@ -189,23 +194,45 @@ const loading = ref(true)
 const pokeserieResults = ref([])
 const pokefilmResults = ref([])
 
-/* --- Animated totals --- */
+/* --- Animated totals ---
+   La clau inclou la pestanya: `categorias_pokeserie` i
+   `categorias_pokefilm` tenen seqüències d'id pròpies i comparteixen
+   id, de manera que amb la clau només per `cat.id` el comptador de
+   la pestanya de pokefilm partia del valor de pokeserie. */
 const animatedTotals = reactive({})
 
+const totalKey = (catId) => `${activeTab.value}-${catId}`
+
 function getAnimatedTotal(catId) {
-  return animatedTotals[catId] ?? 0
+  return animatedTotals[totalKey(catId)] ?? 0
 }
 
+/* Un rAF per clau: en començar una animació nova es cancel·la
+   només la del mateixa categoria, així les categories poden
+   animar en paral·lel sense que una cancel·li l'anterior. */
+const countRafs = new Map()
+
 function animateCountUp(catId, target, duration = 1200) {
+  const key = totalKey(catId)
+  const from = animatedTotals[key] ?? 0
+  if (from === target) return
+
   const start = performance.now()
-  const from = animatedTotals[catId] ?? 0
+
+  const existing = countRafs.get(key)
+  if (existing !== undefined) cancelAnimationFrame(existing)
+
   function step(now) {
     const progress = Math.min((now - start) / duration, 1)
     const eased = 1 - Math.pow(1 - progress, 3)
-    animatedTotals[catId] = Math.round(from + (target - from) * eased)
-    if (progress < 1) requestAnimationFrame(step)
+    animatedTotals[key] = Math.round(from + (target - from) * eased)
+    if (progress < 1) {
+      countRafs.set(key, requestAnimationFrame(step))
+    } else {
+      countRafs.delete(key)
+    }
   }
-  requestAnimationFrame(step)
+  countRafs.set(key, requestAnimationFrame(step))
 }
 
 function getMedal(index) {
@@ -351,6 +378,11 @@ watch(activeTab, async (tab) => {
 
 onMounted(loadAll)
 
+onUnmounted(() => {
+  countRafs.forEach(id => cancelAnimationFrame(id))
+  countRafs.clear()
+})
+
 /* --- Ambient particles --- */
 const viewRef = ref(null)
 const particles = Array.from({ length: 18 }, (_, i) => ({
@@ -363,19 +395,45 @@ const particles = Array.from({ length: 18 }, (_, i) => ({
   opacity: 0.06 + Math.random() * 0.2
 }))
 
-const orbGold = reactive({ x: 0, y: 0 })
-const orbPurple = reactive({ x: 0, y: 0 })
+/* Els orbes segueixen el ratolí via variables CSS (requestAnimationFrame):
+   escriure'ls al DOM evita reactivenitzar tot el component a cada
+   mousemove. */
+const orbGold = ref(null)
+const orbPurple = ref(null)
+
+let orbRaf = null
+let orbPending = null
+
+function flushOrbs() {
+  orbRaf = null
+  if (!orbPending) return
+  const { cx, cy } = orbPending
+  if (orbGold.value) {
+    orbGold.value.style.setProperty('--orb-x', `${cx * 30}px`)
+    orbGold.value.style.setProperty('--orb-y', `${cy * 30}px`)
+  }
+  if (orbPurple.value) {
+    orbPurple.value.style.setProperty('--orb-x', `${cx * -20}px`)
+    orbPurple.value.style.setProperty('--orb-y', `${cy * -20}px`)
+  }
+}
 
 function onMouseMove(e) {
-  if (!viewRef.value) return
-  const rect = viewRef.value.getBoundingClientRect()
-  const cx = (e.clientX - rect.left) / rect.width - 0.5
-  const cy = (e.clientY - rect.top) / rect.height - 0.5
-  orbGold.x = cx * 30
-  orbGold.y = cy * 30
-  orbPurple.x = cx * -20
-  orbPurple.y = cy * -20
+  const el = viewRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  if (!rect.width || !rect.height) return
+  orbPending = {
+    cx: (e.clientX - rect.left) / rect.width - 0.5,
+    cy: (e.clientY - rect.top) / rect.height - 0.5
+  }
+  if (orbRaf === null) orbRaf = requestAnimationFrame(flushOrbs)
 }
+
+onUnmounted(() => {
+  if (orbRaf !== null) cancelAnimationFrame(orbRaf)
+  orbRaf = null
+})
 
 /* --- Winner Confetti --- */
 const winnerConfettiColors = ['#d4a843', '#f0cc6a', '#ffffff', '#c9a035', '#ffe082', '#8b5cf6', '#ec4899', '#06b6d4']
@@ -411,9 +469,17 @@ function winnerConfettiStyle(c) {
   overflow: hidden;
 }
 
-.resultats-view > *:not(.resultats-particles):not(.orb) {
+/* Els decoratius (partícules, orbes i soroll) queden fora: sinó aquesta
+   regla els forçava a `position: relative` i el gra de pel·lícula
+   col·lapsava a 0px d'alçada (no es veia). */
+.resultats-view > *:not(.resultats-particles):not(.orb):not(.resultats-noise) {
   position: relative;
   z-index: 1;
+}
+
+.categories-list {
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- Particles & Orbs --- */
@@ -459,6 +525,9 @@ function winnerConfettiStyle(c) {
   filter: blur(100px);
   pointer-events: none;
   z-index: 0;
+  --orb-x: 0px;
+  --orb-y: 0px;
+  transform: translate(var(--orb-x), var(--orb-y));
   transition: transform 0.1s ease-out;
 }
 
@@ -651,6 +720,19 @@ function winnerConfettiStyle(c) {
   border-radius: 2px;
   background: linear-gradient(180deg, var(--color-accent), var(--color-accent-light));
   flex-shrink: 0;
+  transform-origin: center bottom;
+  animation: accentBarGrowY var(--dur) var(--ease-out) backwards;
+}
+
+@keyframes accentBarGrowY {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
 }
 
 .category-result-name {
@@ -864,17 +946,23 @@ function winnerConfettiStyle(c) {
   animation: winnerConfettiFall var(--duration, 2.5s) ease-in var(--delay, 0s) forwards;
 }
 
+/* Abans només queia 80px dins una caixa de 113px: el resultat era
+   una fila de punts suspenesa, no confeti. Ara travessa tota la
+   caixa i es desvaneix. */
 @keyframes winnerConfettiFall {
   0% {
     transform: translateY(0) rotate(0deg) scale(1) translateX(0);
+    opacity: 0;
+  }
+  15% {
     opacity: 1;
   }
   50% {
-    transform: translateY(40px) rotate(360deg) scale(0.8) translateX(var(--drift, 30px));
-    opacity: 0.8;
+    transform: translateY(50%) rotate(360deg) scale(0.8) translateX(var(--drift, 30px));
+    opacity: 0.85;
   }
   100% {
-    transform: translateY(80px) rotate(720deg) scale(0.3) translateX(calc(var(--drift, 30px) * -0.5));
+    transform: translateY(230%) rotate(720deg) scale(0.3) translateX(calc(var(--drift, 30px) * -0.5));
     opacity: 0;
   }
 }
@@ -1172,20 +1260,21 @@ function winnerConfettiStyle(c) {
     height: 160px;
   }
 
+  /* La llegenda es manté en una sola columna: en dues columnes el
+     nom es trencava en tres línies i quedava truncat. */
   .pie-legend {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
   }
 
   .legend-item {
     flex: 0 1 auto;
-    max-width: 140px;
+    max-width: 100%;
   }
 
   .legend-label {
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .nominees-bars {
