@@ -1,8 +1,10 @@
 
-.voting-view > *:not(.voting-particles):not(.orb) {
+/* Els decoratius (partícules, orbes i soroll) queden fora: sinó aquesta
+   regla els forçava a `position: relative` i el gra de pel·lícula
+   col·lapsava a 0px d'alçada (no es veia). */
+.voting-view > *:not(.voting-particles):not(.orb):not(.voting-noise) {
   position: relative;
   z-index: 1;
-
 }
 /* ============================================================
    POKEGRAMMYS 2026 – Global Stylesheet
@@ -22,6 +24,18 @@
   --color-danger:      #d94452;
   --color-success:     #34d399;
   --transition-theme:  0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Motion ------------------------------------------------
+     Durades i corbes centralitzades. Les animacions d'entrada
+     usen `backwards` (mai `forwards`/`both`) quan animen `transform`
+     o `width`: amb `forwards` l'estat final quedaria incrustat i
+     anul·laria els :hover / :active / .selected posteriors.       */
+  --dur-fast:          0.18s;
+  --dur:               0.28s;
+  --dur-slow:          0.5s;
+  --ease-standard:     cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:          cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Dark theme (default) */
@@ -69,8 +83,6 @@
 body,
 .login-form,
 .register-form,
-.pokecuento-card,
-.pokefilm-card,
 .voting-card,
 .info-view,
 .admin-view,
@@ -717,7 +729,8 @@ button:disabled,
   background: var(--color-accent);
   border-radius: 2px;
   margin: 0.6rem auto 0;
-  animation: accentBarGrow 0.4s ease 0.3s both;
+  transform-origin: center;
+  animation: accentBarGrow var(--dur) var(--ease-out) 0.3s backwards;
 }
 
 .login-form,
@@ -840,25 +853,17 @@ button:disabled,
   100% { transform: translate(30px, -20px) scale(1.08); }
 }
 
+/* El text el pinten els fills .title-line amb el seu propi gradient.
+   Si el h1 també fa background-clip: text, el seu gradient es retalla a la
+   silueta del text dels fills i apareix una còpia estàtica del títol
+   mentre aquests fan l'animació d'entrada. */
 .home-view h1 {
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.1;
-  background: linear-gradient(
-    135deg,
-    var(--color-text) 0%,
-    var(--color-accent) 40%,
-    var(--color-accent-light) 60%,
-    var(--color-text) 100%
-  );
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   position: relative;
-  animation: titleFadeIn 0.6s ease both, titleShimmer 4s ease-in-out 0.6s infinite;
 }
 
 .cta-link {
@@ -908,25 +913,6 @@ button:disabled,
   align-items: center;
   justify-content: center;
   position: relative;
-}
-
-.pokecuento-view::before,
-.pokefilm-view::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 300px;
-  background: linear-gradient(180deg, rgba(212, 168, 67, 0.04) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.pokecuento-view > *,
-.pokefilm-view > * {
-  position: relative;
-  z-index: 1;
 }
 
 .auth-icon-inner {
@@ -1015,19 +1001,6 @@ button:disabled,
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 12px var(--color-accent-glow);
   position: relative;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: -2px;
-  bottom: -2px;
-  width: 8px;
-  background: var(--color-accent-light);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--color-accent-glow), 0 0 16px var(--color-accent-glow);
-  animation: progressGlow 1.5s ease-in-out infinite alternate;
 }
 
 @keyframes progressGlow {
@@ -1139,7 +1112,7 @@ button:disabled,
   overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition);
   box-shadow: 0 2px 12px var(--color-accent-glow);
-  animation: authBtnReveal 0.5s ease 0.6s both;
+  animation: authBtnReveal 0.5s ease 0.6s backwards;
 }
 
 @keyframes authBtnReveal {
@@ -1280,13 +1253,19 @@ button:disabled,
   }
 }
 
-/* --- Gradient orbs (mouse-reactive) --- */
+/* --- Gradient orbs (mouse-reactive) ---
+   La posició la condueix el component via --orb-x / --orb-y.
+   `orbPulse` també anima `transform`, de manera que el desplaçament
+   s'ha de composar dins del keyframe: si no, el ratolí no mogué
+   mai els orbes. */
 .orb {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --orb-x: 0px;
+  --orb-y: 0px;
+  transform: translate(var(--orb-x), var(--orb-y));
   will-change: transform;
 }
 
@@ -1310,9 +1289,9 @@ button:disabled,
 }
 
 @keyframes orbPulse {
-  0%   { transform: scale(1); opacity: 0.8; }
-  50%  { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1.05); opacity: 0.9; }
+  0%   { transform: translate(var(--orb-x, 0px), var(--orb-y, 0px)) scale(1); opacity: 0.8; }
+  50%  { transform: translate(var(--orb-x, 0px), var(--orb-y, 0px)) scale(1.15); opacity: 1; }
+  100% { transform: translate(var(--orb-x, 0px), var(--orb-y, 0px)) scale(1.05); opacity: 0.9; }
 }
 
 /* --- Content wrapper (parallax target) --- */
@@ -1323,6 +1302,9 @@ button:disabled,
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
+  --parallax-x: 0px;
+  --parallax-y: 0px;
+  transform: translate(var(--parallax-x), var(--parallax-y));
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
@@ -1439,7 +1421,7 @@ button:disabled,
 /* --- CTA Button (Neon Glow) --- */
 .cta-hero {
   margin-top: 0.5rem;
-  animation: ctaFadeIn 0.6s ease 0.9s both;
+  animation: ctaFadeIn 0.6s ease 0.9s backwards;
 }
 
 @keyframes ctaFadeIn {
@@ -1836,11 +1818,13 @@ button:disabled,
   font-weight: 500;
 }
 
-/* --- Category Section --- */
+/* --- Category Section ---
+   Sense `flex: 1`: absorbia l'espai sobrant i deixava el botó de
+   votar a 240px de distància de les targetes. */
 .category-section {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 0 auto;
 }
 
 .category-header {
@@ -1867,7 +1851,8 @@ button:disabled,
   height: 3px;
   background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
   border-radius: 2px;
-  animation: accentBarGrow 0.4s ease both;
+  transform-origin: center;
+  animation: accentBarGrow var(--dur) var(--ease-out) backwards;
 }
 
 .category-header h2 {
@@ -1879,17 +1864,13 @@ button:disabled,
   text-transform: uppercase;
 }
 
-.category-count {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-/* --- Cards Grid --- */
+/* --- Cards Grid ---
+   `auto-fit` (i no `auto-fill`) perquè les pistes buides es
+   col·lapsin: amb 2 nominats les targetes ocupen tota la fila en
+   lloc d' quedar pegades a l'esquerra amb 800px de buit. */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 1.25rem;
   max-width: 1100px;
   margin: 0 auto;
@@ -1939,14 +1920,14 @@ button:disabled,
 }
 
 .vote-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .vote-btn-ready {
-  animation: voteBtnReady 0.4s ease both;
+  animation: voteBtnReady var(--dur) var(--ease-spring) backwards;
 }
 
 @keyframes voteBtnReady {
@@ -2001,6 +1982,18 @@ button:disabled,
 }
 
 /* --- Error message --- */
+.empty-voting-state {
+  gap: 1.5rem;
+  padding: 4rem 1rem;
+}
+
+.empty-voting-state p {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  max-width: 34ch;
+  text-align: center;
+}
+
 .error-message {
   text-align: center;
   color: var(--color-danger);
@@ -2153,7 +2146,7 @@ button:disabled,
   font-weight: 600;
   text-decoration: none;
   transition: all var(--transition);
-  animation: titleFadeIn 0.5s ease 0.7s both;
+  animation: titleFadeIn 0.5s ease 0.7s backwards;
   position: relative;
   z-index: 1;
 }
@@ -2174,10 +2167,16 @@ button:disabled,
   transform: translateX(3px);
 }
 
-/* --- Confetti --- */
+/* --- Confetti ---
+   El contenidor fa tota l'alçada de la finestra: abans era
+   `inset: 0` dins de .done-state (350px) i el confeti quedava
+   tallat a la quarta part del recorregut. */
 .confetti-container {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
   pointer-events: none;
   overflow: hidden;
   z-index: 0;
@@ -2189,22 +2188,24 @@ button:disabled,
   animation: confettiFall var(--fall-duration, 2s) ease-in var(--fall-delay, 0s) forwards;
 }
 
+/* La rotació i l'escala de cada peça es condueixen amb variables:
+   la transform inline quedava sempre anul·lada per l'animació. */
 @keyframes confettiFall {
   0% {
-    transform: translateY(0) rotate(0deg) scale(1) translateX(0);
+    transform: translateY(0) rotate(0deg) scale(var(--confetti-scale, 1)) translateX(0);
     opacity: 1;
   }
   25% {
-    transform: translateY(25vh) rotate(180deg) scale(0.9) translateX(var(--drift, 50px));
+    transform: translateY(25vh) rotate(calc(var(--confetti-spin, 720deg) * 0.25)) scale(calc(var(--confetti-scale, 1) * 0.9)) translateX(var(--drift, 50px));
   }
   50% {
-    transform: translateY(50vh) rotate(360deg) scale(0.8) translateX(calc(var(--drift, 50px) * -0.5));
+    transform: translateY(50vh) rotate(calc(var(--confetti-spin, 720deg) * 0.5)) scale(calc(var(--confetti-scale, 1) * 0.8)) translateX(calc(var(--drift, 50px) * -0.5));
   }
   75% {
     opacity: 0.8;
   }
   100% {
-    transform: translateY(100vh) rotate(720deg) scale(0.4) translateX(var(--drift, 50px));
+    transform: translateY(100vh) rotate(var(--confetti-spin, 720deg)) scale(calc(var(--confetti-scale, 1) * 0.4)) translateX(var(--drift, 50px));
     opacity: 0;
   }
 }
@@ -2281,11 +2282,11 @@ button:disabled,
 
 @keyframes accentBarGrow {
   from {
-    width: 0;
+    transform: scaleX(0);
     opacity: 0;
   }
   to {
-    width: 48px;
+    transform: scaleX(1);
     opacity: 1;
   }
 }
@@ -2356,25 +2357,32 @@ button:disabled,
   transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
   cursor: pointer;
   position: relative;
-  opacity: 0;
-  animation: cardEnter 0.5s ease forwards;
+  /* L'estat de repòs es declara aquí i la animació d'entrada usa
+     `backwards` (mai `forwards`): així el hover / :active / .selected
+     tornen a poder sobreescriure el transform. */
+  opacity: 1;
+  transform: none;
+  animation: cardEnter var(--dur-slow) var(--ease-out) backwards;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
 }
 
-/* Staggered entrance – up to 12 cards */
-.pokecuento-card:nth-child(1),  .pokefilm-card:nth-child(1),  .voting-card:nth-child(1)  { animation-delay: 0.05s; }
-.pokecuento-card:nth-child(2),  .pokefilm-card:nth-child(2),  .voting-card:nth-child(2)  { animation-delay: 0.1s; }
-.pokecuento-card:nth-child(3),  .pokefilm-card:nth-child(3),  .voting-card:nth-child(3)  { animation-delay: 0.15s; }
-.pokecuento-card:nth-child(4),  .pokefilm-card:nth-child(4),  .voting-card:nth-child(4)  { animation-delay: 0.2s; }
-.pokecuento-card:nth-child(5),  .pokefilm-card:nth-child(5),  .voting-card:nth-child(5)  { animation-delay: 0.25s; }
-.pokecuento-card:nth-child(6),  .pokefilm-card:nth-child(6),  .voting-card:nth-child(6)  { animation-delay: 0.3s; }
-.pokecuento-card:nth-child(7),  .pokefilm-card:nth-child(7),  .voting-card:nth-child(7)  { animation-delay: 0.35s; }
-.pokecuento-card:nth-child(8),  .pokefilm-card:nth-child(8),  .voting-card:nth-child(8)  { animation-delay: 0.4s; }
-.pokecuento-card:nth-child(9),  .pokefilm-card:nth-child(9),  .voting-card:nth-child(9)  { animation-delay: 0.45s; }
-.pokecuento-card:nth-child(10), .pokefilm-card:nth-child(10), .voting-card:nth-child(10) { animation-delay: 0.5s; }
-.pokecuento-card:nth-child(11), .pokefilm-card:nth-child(11), .voting-card:nth-child(11) { animation-delay: 0.55s; }
-.pokecuento-card:nth-child(12), .pokefilm-card:nth-child(12), .voting-card:nth-child(12) { animation-delay: 0.6s; }
+/* Staggered entrance – up to 12 cards (--i posat des del v-for) */
+.voting-card:nth-child(1)  { animation-delay: 0.05s; }
+.voting-card:nth-child(2)  { animation-delay: 0.1s; }
+.voting-card:nth-child(3)  { animation-delay: 0.15s; }
+.voting-card:nth-child(4)  { animation-delay: 0.2s; }
+.voting-card:nth-child(5)  { animation-delay: 0.25s; }
+.voting-card:nth-child(6)  { animation-delay: 0.3s; }
+.voting-card:nth-child(7)  { animation-delay: 0.35s; }
+.voting-card:nth-child(8)  { animation-delay: 0.4s; }
+.voting-card:nth-child(9)  { animation-delay: 0.45s; }
+.voting-card:nth-child(10) { animation-delay: 0.5s; }
+.voting-card:nth-child(11) { animation-delay: 0.55s; }
+.voting-card:nth-child(12) { animation-delay: 0.6s; }
 
 @keyframes cardEnter {
   from {
@@ -2389,22 +2397,16 @@ button:disabled,
   }
 }
 
-.pokecuento-card:hover,
-.pokefilm-card:hover,
 .voting-card:hover {
   transform: translateY(-8px) scale(1.02);
   border-color: var(--color-accent);
   box-shadow: 0 16px 40px rgba(212, 168, 67, 0.2),
               0 0 0 1px rgba(212, 168, 67, 0.15);
-  opacity: 1;
 }
 
-.pokecuento-card:active,
-.pokefilm-card:active,
 .voting-card:active {
   transform: translateY(-2px) scale(0.99);
   transition-duration: 0.1s;
-  opacity: 1;
 }
 
 /* --- Selected state --- */
@@ -2414,11 +2416,13 @@ button:disabled,
               0 12px 36px rgba(212, 168, 67, 0.35),
               0 0 80px rgba(212, 168, 67, 0.12);
   transform: scale(1.02);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--dur) var(--ease-spring),
+              box-shadow var(--dur) var(--ease-out),
+              border-color var(--dur) var(--ease-out);
 }
 
-.voting-card:not(.selected) {
-  transition: all 0.3s ease;
+.voting-card.selected:hover {
+  transform: translateY(-8px) scale(1.04);
 }
 
 .voting-card.selected .card-body {
@@ -2429,14 +2433,23 @@ button:disabled,
   color: var(--color-accent);
 }
 
-/* --- Card glow (follows mouse) --- */
+/* --- Card glow (follows mouse) ---
+   La posició la condueix VotingCard via --glow-x / --glow-y i
+   --glow-opacity, escrites directament al DOM (sense reactivitat).
+   Viu dins de .card-image perquè quedi retallat per la imatge i
+   no Tapi els textos del cos de la targeta. */
 .card-glow {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0;
+  z-index: 2;
+  opacity: var(--glow-opacity, 0);
+  background: radial-gradient(
+    circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(212, 168, 67, 0.42),
+    rgba(212, 168, 67, 0.12) 38%,
+    transparent 62%
+  );
   transition: opacity 0.3s ease;
 }
 
@@ -2495,20 +2508,22 @@ button:disabled,
   box-shadow: 0 2px 8px rgba(212, 168, 67, 0.4);
 }
 
-/* --- Selected checkmark --- */
+/* --- Selected checkmark ---
+   Viu dins de .card-image, a la cantonada inferior dreta: la
+   superior dreta la ocupa el botó d'informació. */
 .selected-check {
   position: absolute;
-  top: 0.6rem;
+  bottom: 0.6rem;
   right: 0.6rem;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
   color: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 4;
   box-shadow: 0 2px 12px rgba(212, 168, 67, 0.5),
               0 0 0 3px rgba(212, 168, 67, 0.15);
 }
@@ -2700,8 +2715,6 @@ button:disabled,
   opacity: 1;
 }
 
-.pokecuento-card:hover .card-image img,
-.pokefilm-card:hover .card-image img,
 .voting-card:hover .card-image img {
   transform: scale(1.06);
 }
@@ -2726,8 +2739,6 @@ button:disabled,
   transition: color var(--transition);
 }
 
-.pokecuento-card:hover .card-title,
-.pokefilm-card:hover .card-title,
 .voting-card:hover .card-title {
   color: var(--color-accent);
 }
@@ -2751,17 +2762,22 @@ button:disabled,
   color: var(--color-text);
 }
 
-/* --- Info button --- */
+/* --- Info button ---
+   Botó compacte (cercle de 30px) a la cantonada superior dreta de
+   la imatge: en forma de píl·la amb etiqueta ocupava el centre del
+   clic de la targeta i robava la selecció. La cantonada inferior
+   dreta la ocupa el checkmark de "seleccionat". */
 .info-btn {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  width: 30px;
   height: 30px;
-  padding: 0 0.6rem;
-  border-radius: 100px;
+  padding: 0;
+  border-radius: 50%;
   background: rgba(8, 8, 13, 0.65);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -2770,15 +2786,18 @@ button:disabled,
   font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all var(--transition);
-  z-index: 3;
+  transition: opacity var(--transition), transform var(--transition),
+              background var(--transition), border-color var(--transition),
+              box-shadow var(--transition);
+  z-index: 4;
   opacity: 0;
-  transform: translateY(-4px);
+  transform: scale(0.85);
 }
 
-.card-image:hover .info-btn {
+.card-image:hover .info-btn,
+.info-btn:focus-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale(1);
 }
 
 .info-btn-icon {
@@ -2794,14 +2813,10 @@ button:disabled,
   font-weight: 800;
 }
 
-.info-btn-label {
-  letter-spacing: 0.03em;
-}
-
 .info-btn:hover {
   background: rgba(212, 168, 67, 0.25);
   border-color: var(--color-accent);
-  transform: scale(1.05);
+  transform: scale(1.08);
   box-shadow: 0 2px 12px rgba(212, 168, 67, 0.3);
 }
 
@@ -2918,13 +2933,43 @@ button:disabled,
 .info-image.expanded {
   cursor: zoom-out;
   position: fixed;
-  inset: 2rem;
+  inset: 0;
   z-index: 1000;
+  padding: 2rem;
+  /* `width: 100%` heredat de la regla base feia que la caixa
+     sobrepassés la finestra per la dreta (right: 2rem s'ignorava). */
+  width: auto;
+  height: auto;
   max-width: none;
   max-height: none;
+  /* El contenidor és invisible: el que es veu és la imatge sobre
+     el backdrop, no un panell opac de mida completa. */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-image.expanded img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   border-radius: var(--radius-lg);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6),
               0 0 0 1px rgba(212, 168, 67, 0.3);
+}
+
+/* El botó de tancar va a la cantonada de la finestra */
+.info-image.expanded .image-overlay {
+  inset: auto 2rem 2rem auto;
+  background: none;
+  padding: 0;
+  opacity: 1;
 }
 
 .info-image img {
@@ -3167,7 +3212,8 @@ button:disabled,
   background: var(--color-accent);
   border-radius: 2px;
   margin: 0.5rem auto 0;
-  animation: accentBarGrow 0.4s ease 0.3s both;
+  transform-origin: center;
+  animation: accentBarGrow var(--dur) var(--ease-out) 0.3s backwards;
 }
 
 .admin-grid {
@@ -3487,7 +3533,7 @@ button:disabled,
 
   .info-btn {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 
   .progress-section {
@@ -3656,8 +3702,6 @@ button:disabled,
   box-shadow: 0 2px 16px rgba(212, 168, 67, 0.25);
 }
 
-:root[data-theme="light"] .pokecuento-card:hover,
-:root[data-theme="light"] .pokefilm-card:hover,
 :root[data-theme="light"] .voting-card:hover {
   box-shadow: 0 12px 36px rgba(212, 168, 67, 0.15);
 }
@@ -3851,6 +3895,15 @@ a:focus-visible {
     animation: none !important;
   }
 
+  /* Animacions infinites que quedaven fora de la llista */
+  .pie-glow,
+  .winner-image-glow,
+  .winner-medal,
+  .medal-icon,
+  .auth-icon-glow {
+    animation: none !important;
+  }
+
   .confetti-piece,
   .winner-confetti-piece {
     animation: none !important;
@@ -3915,6 +3968,15 @@ a:focus-visible {
 
 :root[data-theme="light"] .admin-view {
   background: var(--color-bg);
+}
+
+/* El botó de votar desactivat en tema clar era blanc sobre or pal:
+   text blanc a 0.3 d'opacitat sobre fons clar, sense contrast. */
+:root[data-theme="light"] .vote-btn:disabled {
+  opacity: 1;
+  background: var(--color-border);
+  color: var(--color-text-dim);
+  box-shadow: none;
 }
 
 :root[data-theme="light"] .crud-section {

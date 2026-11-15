@@ -1,0 +1,18 @@
+# Fitxer bàsic de gitleaks v4.
+# - L'historial conté un .env real (commits 25efbc6 i 8c26dd7) amb les
+#   claus PÚBLIQUES de Supabase (anon/publishable), per disseny exposades
+#   al bundle. Estan a l'allowlist perquè l'escaneig de l'historial no
+#   falli de manera permanent. Si es purga l'historial (recomanat a la
+#   auditoria: AUDITORIA_SEGURETAT_2026-10-30.md, punt 9), elimina aquestes exclusions.
+title = "Pokegrammys2026 baseline"
+
+[extend]
+# Extend by default global config (most rules)
+useDefault = true
+
+[allowlist]
+description = "Clau anon/publishable de Supabase a l'historial git (públiques per disseny)"
+commits = [
+  "25efbc6",
+  "8c26dd7",
+]
