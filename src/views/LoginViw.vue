@@ -49,6 +49,10 @@
         {{ $t('auth.noAccount') || 'No tens compte?' }}
         <router-link to="/Register">{{ $t('auth.register') }}</router-link>
       </p>
+
+      <p class="auth-switch auth-forgot">
+        <router-link to="/Reset">{{ $t('auth.forgotPassword') }}</router-link>
+      </p>
     </div>
   </div>
 </template>
@@ -56,9 +60,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth.js'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
@@ -90,9 +96,12 @@ const handleLogin = async () => {
 
   try {
     await auth.login(email.value, password.value)
-    router.push('/Home')
+    await router.push('/Home')
   } catch (error) {
-    errorMsg.value = error.message
+    // El missatge de Supabase es mostra en anglès cru: es tradueix.
+    errorMsg.value = error?.status === 400
+      ? t('auth.invalidCredentials')
+      : t('auth.loginError')
   } finally {
     loading.value = false
   }

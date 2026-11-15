@@ -22,7 +22,9 @@
     "title": "Pokegrammys 2026",
     "voteCta": "Votació",
     "year": "2026",
-    "subtitle": "Els millors Pokecuentos i Pokefilms de la comunitat"
+    "subtitle": "Els millors Pokecuentos i Pokefilms de la comunitat",
+    "pokecuentoDesc": "Els millors Pokecuentos de la comunitat",
+    "pokefilmDesc": "Els millors Pokefilms de la comunitat"
   },
   "auth": {
     "titleLogin": "Login",
@@ -44,7 +46,21 @@
     "register": "Registrar-se",
     "loginRequired": "Has d'iniciar sessió per accedir",
     "hidePassword": "Amagar contrasenya",
-    "showPassword": "Mostrar contrasenya"
+    "showPassword": "Mostrar contrasenya",
+    "invalidCredentials": "Email o contrasenya incorrectes",
+    "loginError": "No s'ha pogut iniciar la sessió. Torna-ho a intentar.",
+    "registerError": "No s'ha pogut crear el compte. Torna-ho a intentar.",
+    "forgotPassword": "Has oblidat la contrasenya?",
+    "resetTitle": "Recuperar contrasenya",
+    "resetSubtitle": "Et farem arribar un enllaç per restablir-la",
+    "sendResetLink": "Enviar enllaç",
+    "sendingResetLink": "Enviant.....",
+    "resetLinkSent": "Si el correu existeix, t'hi hem enviat un enllaç per restablir la contrasenya.",
+    "resetError": "No s'ha pogut enviar l'enllaç. Torna-ho a intentar.",
+    "newPasswordTitle": "Nova contrasenya",
+    "updatePassword": "Canviar contrasenya",
+    "passwordChanged": "Contrasenya actualitzada!",
+    "passwordChangeError": "No s'ha pogut canviar la contrasenya. Torna-ho a intentar."
   },
   "voting": {
     "back": "Anterior",
@@ -58,8 +74,11 @@
     "errorSending": "Error al enviar els vots. Torna-ho a intentar.",
     "alreadyVoted": "Ja has votat en alguna categoria anteriorment. Torna-ho a intentar.",
     "backHome": "Tornar a l'inici",
-    "nomineesCount": "{count} nominats",
-    "selected": "SELECCIONAT"
+    "nomineesCount": "{count} nominats | {count} nominat | {count} nominats",
+    "selected": "SELECCIONAT",
+    "errorLoading": "No s'han pogut carregar les dades. Torna-ho a intentar.",
+    "noCategories": "Encara no hi ha categories per votar.",
+    "partialVotes": "Els vots d'algunes categories ja estaven desats. La resta s'han enviat."
   },
   "info": {
     "back": "Tornar",
@@ -74,16 +93,18 @@
     "badge": "Resultats",
     "subtitle": "Resultats de la votació dels Pokegrammys",
     "loading": "Carregant resultats...",
-    "votes": "vots",
+    "votes": "{count} vots | {count} vot | {count} vots",
     "totalVotes": "Total",
     "empty": "No hi ha resultats disponibles encara.",
     "winner": "GUANYADOR",
-    "totalVotesLabel": "VOTS TOTALS",
+    "totalVotesLabel": "VOTS TOTALS | VOT TOTAL | VOTS TOTALS",
     "tabPokeserie": "Pokeserie",
-    "tabPokefilm": "Pokefilm"
+    "tabPokefilm": "Pokefilm",
+    "votesLabel": "VOTS | VOT | VOTS"
   },
   "admin": {
     "title": "Panell d'Administració",
+    "errorGeneric": "No s'ha pogut completar l'operació. Torna-ho a intentar.",
     "categories": {
       "title": "Categories",
       "tabPokeserie": "Pokeserie",

@@ -1,3 +1,7 @@
+-- ⚠️ FITXER HISTÒRIC. NO L'EXECUTIS A PRODUCCIÓ.
+-- 1) Originalment començava esborrant totes les votacions (DELETE FROM votacion_*).
+-- 2) La política d'UPDATE de profiles era vulnerable a escalada de privilegis.
+-- La versió segura és supabase/migrations/20261024160000_security_hardening.sql.
 -- =========================================================
 -- ACTIVAR RLS
 -- =========================================================
@@ -61,8 +65,10 @@ USING (true);
 -- IMPORTANT si votante_id NO era UUID abans
 -- =========================================================
 
-DELETE FROM votacion_pokeserie;
-DELETE FROM votacion_pokefilm;
+-- [NOU] No esborrem vots des d'un script de RLS. Si necessites reiniciar
+-- la votació, fes-ho explícitament i amb una còpia de seguretat.
+-- DELETE FROM votacion_pokeserie;
+-- DELETE FROM votacion_pokefilm;
 
 
 -- =========================================================
@@ -161,11 +167,13 @@ FOR SELECT
 TO authenticated
 USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile"
-ON profiles
-FOR UPDATE
-TO authenticated
-USING (auth.uid() = id);
+-- ATENCIÓ: política eliminada perquè no tenia WITH CHECK i permetia
+-- que qualsevol usuari es fes admin. No la recreïs.
+-- CREATE POLICY "Users can update own profile"
+-- ON profiles
+-- FOR UPDATE
+-- TO authenticated
+-- USING (auth.uid() = id);
 
 
 -- =========================================================

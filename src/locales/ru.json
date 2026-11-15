@@ -22,7 +22,9 @@
     "title": "Pokegrammys 2026",
     "voteCta": "Голосовать",
     "year": "2026",
-    "subtitle": "Лучшие Pokecuentos и Pokefilms от сообщества"
+    "subtitle": "Лучшие Pokecuentos и Pokefilms от сообщества",
+    "pokecuentoDesc": "Лучшие Pokecuentos от сообщества",
+    "pokefilmDesc": "Лучшие Pokefilms от сообщества"
   },
   "auth": {
     "titleLogin": "Вход",
@@ -44,7 +46,21 @@
     "register": "Зарегистрироваться",
     "loginRequired": "Необходимо войти для доступа",
     "hidePassword": "Скрыть пароль",
-    "showPassword": "Показать пароль"
+    "showPassword": "Показать пароль",
+    "invalidCredentials": "Неверный email или пароль",
+    "loginError": "Не удалось войти. Попробуйте снова.",
+    "registerError": "Не удалось создать аккаунт. Попробуйте снова.",
+    "forgotPassword": "Забыли пароль?",
+    "resetTitle": "Восстановление пароля",
+    "resetSubtitle": "Мы отправим вам ссылку для сброса",
+    "sendResetLink": "Отправить ссылку",
+    "sendingResetLink": "Отправка...",
+    "resetLinkSent": "Если такой email существует, мы отправили на него ссылку для сброса пароля.",
+    "resetError": "Не удалось отправить ссылку. Попробуйте снова.",
+    "newPasswordTitle": "Новый пароль",
+    "updatePassword": "Обновить пароль",
+    "passwordChanged": "Пароль обновлён!",
+    "passwordChangeError": "Не удалось обновить пароль. Попробуйте снова."
   },
   "voting": {
     "back": "Назад",
@@ -58,8 +74,11 @@
     "errorSending": "Ошибка при отправке голосов. Попробуйте снова.",
     "alreadyVoted": "Вы уже голосовали в одной из предыдущих категорий. Попробуйте снова.",
     "backHome": "Вернуться на главную",
-    "nomineesCount": "{count} номинантов",
-    "selected": "ВЫБРАНО"
+    "nomineesCount": "{count} номинантов | {count} номинант | {count} номинанта | {count} номинантов",
+    "selected": "ВЫБРАНО",
+    "errorLoading": "Не удалось загрузить данные. Попробуйте снова.",
+    "noCategories": "Категорий для голосования пока нет.",
+    "partialVotes": "Голоса по некоторым категориям уже сохранены. Остальные отправлены."
   },
   "info": {
     "back": "Назад",
@@ -74,16 +93,18 @@
     "badge": "Результаты",
     "subtitle": "Результаты голосования Pokegrammys",
     "loading": "Загрузка результатов...",
-    "votes": "голосов",
+    "votes": "{count} голосов | {count} голос | {count} голоса | {count} голосов",
     "totalVotes": "Всего",
     "empty": "Результаты пока недоступны.",
     "winner": "ПОБЕДИТЕЛЬ",
-    "totalVotesLabel": "ВСЕГО ГОЛОСОВ",
+    "totalVotesLabel": "ВСЕГО ГОЛОСОВ | ВСЕГО ГОЛОС | ВСЕГО ГОЛОСА | ВСЕГО ГОЛОСОВ",
     "tabPokeserie": "Pokeserie",
-    "tabPokefilm": "Pokefilm"
+    "tabPokefilm": "Pokefilm",
+    "votesLabel": "ГОЛОСОВ | ГОЛОС | ГОЛОСА | ГОЛОСОВ"
   },
   "admin": {
     "title": "Панель управления",
+    "errorGeneric": "Не удалось выполнить операцию. Попробуйте снова.",
     "categories": {
       "title": "Категории",
       "tabPokeserie": "Pokeserie",

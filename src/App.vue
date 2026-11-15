@@ -12,6 +12,7 @@ const { t, locale } = useI18n()
 /* --- Theme --- */
 const currentTheme = ref('dark')
 const themeAnimating = ref(false)
+let themeTimer = null
 
 function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
@@ -26,18 +27,35 @@ function applyTheme(theme) {
 function toggleTheme() {
   themeAnimating.value = true
   applyTheme(currentTheme.value === 'dark' ? 'light' : 'dark')
-  setTimeout(() => { themeAnimating.value = false }, 400)
+  // Es neteja el temporitzador anterior: en fer clic ràpid es
+  // creaven temporitzadors apilats.
+  if (themeTimer) clearTimeout(themeTimer)
+  themeTimer = setTimeout(() => { themeAnimating.value = false }, 400)
+}
+
+/* S'escolta el canvi de tema del sistema, però només si l'usuari
+   no n'ha triat un manualment. */
+let systemThemeQuery = null
+
+function handleSystemThemeChange(e) {
+  if (!localStorage.getItem('pokegrammys-theme')) {
+    applyTheme(e.matches ? 'light' : 'dark')
+  }
 }
 
 onMounted(() => {
   const saved = localStorage.getItem('pokegrammys-theme')
   applyTheme(saved || getSystemTheme())
 
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-    if (!localStorage.getItem('pokegrammys-theme')) {
-      applyTheme(e.matches ? 'light' : 'dark')
-    }
-  })
+  systemThemeQuery = window.matchMedia('(prefers-color-scheme: light)')
+  systemThemeQuery.addEventListener('change', handleSystemThemeChange)
+})
+
+onUnmounted(() => {
+  if (themeTimer) clearTimeout(themeTimer)
+  if (systemThemeQuery) {
+    systemThemeQuery.removeEventListener('change', handleSystemThemeChange)
+  }
 })
 
 /* --- Locale --- */
@@ -154,7 +172,7 @@ function closeMobileMenu() {
           </svg>
         </button>
         <Transition name="dropdown">
-          <div v-if="showLangDropdown" class="dropdown-menu lang-dropdown">
+          <div v-if="showLangDropdown" class="dropdown-menu">
             <button
               v-for="loc in locales"
               :key="loc.code"
@@ -174,7 +192,13 @@ function closeMobileMenu() {
       </div>
 
       <!-- Theme toggle -->
-      <button class="nav-action-btn theme-toggle" @click="toggleTheme" :class="{ animating: themeAnimating }">
+      <button
+        class="nav-action-btn theme-toggle"
+        @click="toggleTheme"
+        :class="{ animating: themeAnimating }"
+        :title="currentTheme === 'dark' ? t('nav.lightMode') : t('nav.darkMode')"
+        :aria-label="currentTheme === 'dark' ? t('nav.lightMode') : t('nav.darkMode')"
+      >
         <Transition name="theme-icon" mode="out-in">
           <svg v-if="currentTheme === 'dark'" key="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"/>

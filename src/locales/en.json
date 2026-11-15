@@ -22,7 +22,9 @@
     "title": "Pokegrammys 2026",
     "voteCta": "Vote",
     "year": "2026",
-    "subtitle": "The best Pokecuentos and Pokefilms from the community"
+    "subtitle": "The best Pokecuentos and Pokefilms from the community",
+    "pokecuentoDesc": "The best Pokecuentos from the community",
+    "pokefilmDesc": "The best Pokefilms from the community"
   },
   "auth": {
     "titleLogin": "Login",
@@ -44,7 +46,21 @@
     "register": "Register",
     "loginRequired": "You must log in to access",
     "hidePassword": "Hide password",
-    "showPassword": "Show password"
+    "showPassword": "Show password",
+    "invalidCredentials": "Incorrect email or password",
+    "loginError": "Could not sign in. Please try again.",
+    "registerError": "Could not create the account. Please try again.",
+    "forgotPassword": "Forgot your password?",
+    "resetTitle": "Reset password",
+    "resetSubtitle": "We'll email you a link to reset it",
+    "sendResetLink": "Send link",
+    "sendingResetLink": "Sending...",
+    "resetLinkSent": "If the email exists, we've sent you a link to reset your password.",
+    "resetError": "Couldn't send the link. Please try again.",
+    "newPasswordTitle": "New password",
+    "updatePassword": "Update password",
+    "passwordChanged": "Password updated!",
+    "passwordChangeError": "Couldn't update the password. Please try again."
   },
   "voting": {
     "back": "Back",
@@ -58,8 +74,11 @@
     "errorSending": "Error sending votes. Try again.",
     "alreadyVoted": "You have already voted in a previous category. Try again.",
     "backHome": "Back to home",
-    "nomineesCount": "{count} nominees",
-    "selected": "SELECTED"
+    "nomineesCount": "{count} nominees | {count} nominee | {count} nominees",
+    "selected": "SELECTED",
+    "errorLoading": "Could not load the data. Please try again.",
+    "noCategories": "There are no categories to vote on yet.",
+    "partialVotes": "Votes for some categories were already saved. The rest have been submitted."
   },
   "info": {
     "back": "Back",
@@ -74,16 +93,18 @@
     "badge": "Results",
     "subtitle": "Pokegrammys voting results",
     "loading": "Loading results...",
-    "votes": "votes",
+    "votes": "{count} votes | {count} vote | {count} votes",
     "totalVotes": "Total",
     "empty": "No results available yet.",
     "winner": "WINNER",
-    "totalVotesLabel": "TOTAL VOTES",
+    "totalVotesLabel": "TOTAL VOTES | TOTAL VOTE | TOTAL VOTES",
     "tabPokeserie": "Pokeserie",
-    "tabPokefilm": "Pokefilm"
+    "tabPokefilm": "Pokefilm",
+    "votesLabel": "VOTES | VOTE | VOTES"
   },
   "admin": {
     "title": "Admin Panel",
+    "errorGeneric": "The operation could not be completed. Please try again.",
     "categories": {
       "title": "Categories",
       "tabPokeserie": "Pokeserie",

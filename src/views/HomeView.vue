@@ -18,17 +18,11 @@
     </div>
 
     <!-- Gradient orbs that follow mouse -->
-    <div
-      class="orb orb-gold"
-      :style="{ transform: `translate(${orbGold.x}px, ${orbGold.y}px)` }"
-    />
-    <div
-      class="orb orb-purple"
-      :style="{ transform: `translate(${orbPurple.x}px, ${orbPurple.y}px)` }"
-    />
+    <div ref="orbGold" class="orb orb-gold" />
+    <div ref="orbPurple" class="orb orb-purple" />
 
     <!-- Main content -->
-    <div class="home-content" :style="{ transform: `translate(${parallax.x}px, ${parallax.y}px)` }">
+    <div ref="contentRef" class="home-content">
       <div class="badge">
         <span class="badge-dot" />
         {{ $t('home.year') || '2026' }}
@@ -38,8 +32,8 @@
       </h1>
       <p class="hero-subtitle">{{ $t('home.subtitle') || 'Els millors Pokecuentos i Pokefilms de la comunitat' }}</p>
       <router-link to="/Pokecuento" class="cta-link cta-hero">
-        <span class="cta-text">{{ $t('home.voteCta') }}</span>
-        <span class="cta-arrow">→</span>
+        <span>{{ $t('home.voteCta') }}</span>
+        <span class="cta-arrow" aria-hidden="true">→</span>
       </router-link>
     </div>
 
@@ -53,7 +47,7 @@
           </svg>
         </div>
         <h3>{{ $t('nav.pokecuento') }}</h3>
-        <p>{{ $t('home.subtitle') || 'Els millors Pokecuentos de la comunitat' }}</p>
+        <p>{{ $t('home.pokecuentoDesc') }}</p>
       </router-link>
       <router-link to="/Pokefilm" class="category-card">
         <div class="category-card-icon">
@@ -69,14 +63,14 @@
           </svg>
         </div>
         <h3>{{ $t('nav.pokefilm') }}</h3>
-        <p>{{ $t('home.subtitle') || 'Els millors Pokefilms de la comunitat' }}</p>
+        <p>{{ $t('home.pokefilmDesc') }}</p>
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onUnmounted } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 const homeRef = ref(null)
 
@@ -91,30 +85,50 @@ const particles = Array.from({ length: 18 }, (_, i) => ({
   opacity: 0.08 + Math.random() * 0.25
 }))
 
-/* --- Mouse tracking --- */
-const parallax = reactive({ x: 0, y: 0 })
-const orbGold = reactive({ x: 0, y: 0 })
-const orbPurple = reactive({ x: 0, y: 0 })
+/* --- Mouse tracking ---
+   El parallax del contingut i el desplaçament dels orbes es
+   calculen amb requestAnimationFrame i s'escriuen com a variables
+   CSS: així no es reactivenitza el component a cada mousemove. */
+const contentRef = ref(null)
+const orbGold = ref(null)
+const orbPurple = ref(null)
+
+let raf = null
+let pending = null
+
+function flush() {
+  raf = null
+  if (!pending) return
+  const { cx, cy } = pending
+
+  if (contentRef.value) {
+    contentRef.value.style.setProperty('--parallax-x', `${cx * -12}px`)
+    contentRef.value.style.setProperty('--parallax-y', `${cy * -12}px`)
+  }
+  if (orbGold.value) {
+    orbGold.value.style.setProperty('--orb-x', `${cx * 40}px`)
+    orbGold.value.style.setProperty('--orb-y', `${cy * 40}px`)
+  }
+  if (orbPurple.value) {
+    orbPurple.value.style.setProperty('--orb-x', `${cx * -30}px`)
+    orbPurple.value.style.setProperty('--orb-y', `${cy * -30}px`)
+  }
+}
 
 function onMouseMove(e) {
-  if (!homeRef.value) return
-  const rect = homeRef.value.getBoundingClientRect()
-  const cx = (e.clientX - rect.left) / rect.width - 0.5
-  const cy = (e.clientY - rect.top) / rect.height - 0.5
-
-  parallax.x = cx * -12
-  parallax.y = cy * -12
-
-  orbGold.x = cx * 40
-  orbGold.y = cy * 40
-
-  orbPurple.x = cx * -30
-  orbPurple.y = cy * -30
+  const el = homeRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  if (!rect.width || !rect.height) return
+  pending = {
+    cx: (e.clientX - rect.left) / rect.width - 0.5,
+    cy: (e.clientY - rect.top) / rect.height - 0.5
+  }
+  if (raf === null) raf = requestAnimationFrame(flush)
 }
 
 onUnmounted(() => {
-  if (homeRef.value) {
-    homeRef.value.removeEventListener('mousemove', onMouseMove)
-  }
+  if (raf !== null) cancelAnimationFrame(raf)
+  raf = null
 })
 </script>
